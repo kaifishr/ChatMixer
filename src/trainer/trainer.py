@@ -9,13 +9,8 @@ from src.config.config import Config
 from src.utils.stats import comp_stats_classification
 from src.summary.summary import (
     add_graph,
-    add_input_samples,
-    add_hist_params,
-    add_hparams,
-    add_patch_embedding_weights,
     add_token_embedding_weights,
     add_position_embedding_weights,
-    add_mask_weights,
 )
 
 
@@ -63,28 +58,13 @@ class Trainer:
                 model=model, dataloader=train_loader, writer=self.writer, config=config
             )
 
-        # Add sample batch to Tensorboard.
-        if config.summary.add_sample_batch:
-            add_input_samples(
-                dataloader=train_loader, writer=self.writer, tag="train", global_step=0
-            )
-            add_input_samples(
-                dataloader=test_loader, writer=self.writer, tag="test", global_step=0
-            )
-
-        learning_rate = config.trainer.learning_rate
+        learning_rate = config.trainer.initial_learning_rate
         weight_decay = config.trainer.weight_decay
-        self.optimizer = torch.optim.Adam(
-            model.parameters(), lr=learning_rate, weight_decay=weight_decay
-        )
+        self.optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
 
-        step_size = config.trainer.lr_step_size
-        gamma = config.trainer.lr_gamma
         self.criterion = torch.nn.CrossEntropyLoss()
-        # self.scheduler = torch.optim.lr_scheduler.StepLR(
-        #     self.optimizer, step_size=step_size, gamma=gamma
-        # )
-        max_learning_rate = 0.001
+
+        max_learning_rate = config.trainer.max_learning_rate
         self.scheduler = torch.optim.lr_scheduler.OneCycleLR(
             self.optimizer, max_lr=max_learning_rate, total_steps=self.num_update_steps
         )
@@ -116,19 +96,16 @@ class Trainer:
 
             for x_data, y_data in train_loader:
 
-                # Get the inputs; data is a list of [inputs, labels]
+                # Get the inputs and labels.
                 inputs, labels = x_data.to(device), y_data.to(device)
 
-                # Zero the parameter gradients
+                # Zero the parameter gradients.
                 optimizer.zero_grad()
 
-                # Feedforward
+                # Feedforward.
                 outputs = model(inputs)
 
-                # Reshape outputs and labels as if we have a classification task.
-                # TODO: Move reshaping to model.
-                outputs = outputs.view(-1, outputs.size(-1))
-                labels = labels.view(-1)
+                # Compute loss.
                 loss = criterion(outputs, labels)
 
                 # Backpropagation
@@ -201,16 +178,6 @@ class Trainer:
                             "test_accuracy", test_accuracy, global_step=update_step
                         )
 
-                        if config.summary.add_hparams:
-                            add_hparams(
-                                writer,
-                                config,
-                                train_loss,
-                                train_accuracy,
-                                test_loss,
-                                test_accuracy,
-                            )
-
                 if config.summary.save_model.every_n_updates > 0:
                     if update_step % config.summary.save_model.every_n_updates == 0:
                         dataset = config.dataloader.dataset
@@ -218,25 +185,6 @@ class Trainer:
                         model_name = f"{dataset}{tag}.pth"
                         model_path = os.path.join(config.dirs.weights, model_name)
                         torch.save(model.state_dict(), model_path)
-
-                if config.summary.add_params_hist.every_n_updates > 0:
-                    if (
-                        update_step % config.summary.add_params_hist.every_n_updates
-                        == 0
-                    ):
-                        add_hist_params(
-                            model=model, writer=writer, global_step=update_step
-                        )
-
-                if config.summary.add_patch_embeddings.every_n_updates > 0:
-                    if (
-                        update_step
-                        % config.summary.add_patch_embeddings.every_n_updates
-                        == 0
-                    ):
-                        add_patch_embedding_weights(
-                            model=model, writer=writer, global_step=update_step
-                        )
 
                 if config.summary.add_token_embeddings.every_n_updates > 0:
                     if (
@@ -255,15 +203,6 @@ class Trainer:
                         == 0
                     ):
                         add_position_embedding_weights(
-                            model=model, writer=writer, global_step=update_step
-                        )
-
-                if config.summary.add_mask_weights.every_n_updates > 0:
-                    if (
-                        update_step % config.summary.add_mask_weights.every_n_updates
-                        == 0
-                    ):
-                        add_mask_weights(
                             model=model, writer=writer, global_step=update_step
                         )
 

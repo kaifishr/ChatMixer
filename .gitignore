@@ -144,3 +144,9 @@ dmypy.json
 
 # Ignore parameter files.
 *.pth
+
+# Ignore training data.
+/data/
+
+# Ignore Tensorboard files.
+/runs/

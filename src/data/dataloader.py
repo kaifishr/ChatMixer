@@ -64,7 +64,7 @@ def get_dataloader(config: Config) -> tuple[DataLoader, DataLoader]:
 
     elif dataset == "enwik":
         # dataset_url = "http://mattmahoney.net/dc/enwik8.zip"
-        raise NotImplementedError("Dataloader for {dataset} dataset not implemented.")
+        raise NotImplementedError(f"Dataloader for {dataset} dataset not implemented.")
 
     else:
         raise NotImplementedError(f"Dataloader for {dataset} not implemented.")
@@ -77,7 +77,7 @@ def get_dataloader(config: Config) -> tuple[DataLoader, DataLoader]:
     else:
         pin_memory = False
 
-    trainloader = torch.utils.data.DataLoader(
+    train_loader = torch.utils.data.DataLoader(
         dataset=train_dataset,
         batch_size=batch_size,
         num_workers=num_workers,
@@ -87,7 +87,7 @@ def get_dataloader(config: Config) -> tuple[DataLoader, DataLoader]:
         pin_memory=pin_memory,
     )
 
-    testloader = torch.utils.data.DataLoader(
+    test_loader = torch.utils.data.DataLoader(
         dataset=test_dataset,
         batch_size=2 * batch_size,
         num_workers=num_workers,
@@ -97,7 +97,7 @@ def get_dataloader(config: Config) -> tuple[DataLoader, DataLoader]:
         pin_memory=pin_memory,
     )
 
-    return trainloader, testloader
+    return train_loader, test_loader
 
 
 def load_lexicap() -> str:

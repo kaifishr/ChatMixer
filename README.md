@@ -5,3 +5,4 @@ A [MLP-Mixer](https://arxiv.org/abs/2105.01601) architecture for character-level
 ## TODOs
 
 - Add perplexity metric.
+- Drop characters / entire words of the input sequence.

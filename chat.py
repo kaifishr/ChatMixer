@@ -1,4 +1,4 @@
-"""Methods to chat with pre-trained transformer network."""
+"""Methods to chat with pre-trained language network."""
 import os
 
 import torch
@@ -7,7 +7,7 @@ import torch.nn.functional as F
 
 from src.data.dataloader import get_dataloader
 from src.config.config import Config, init_config
-from src.modules.model import CharMixer 
+from src.modules.model import CharacterMixer
 from src.utils.tools import load_checkpoint
 
 
@@ -33,7 +33,7 @@ class Chat:
         self.valid_characters = list(self.dataset.char_to_index)
 
         self.device = self.config.trainer.device
-        self.max_sequence_length = self.config.transformer.max_sequence_length
+        self.max_sequence_length = self.config.model.max_sequence_length
 
         # Maximum number of generated tokens.
         self.max_num_tokens = 200
@@ -70,9 +70,6 @@ class Chat:
             # Feed sequence into model.
             logits = self.model(sequence)
 
-            # Extract probabilities for last token.
-            logits = logits[:, -1, :]
-
             # High temperature: make model more creative (text generation).
             # Low temperature: make model more confident (knowledge retrieval).
             logits = logits / self.temperature
@@ -104,6 +101,10 @@ class Chat:
                 return False
         return True
 
+    def _add_padding(self, prompt: str, char: str = " ") -> str:
+        """Pads input prompt to have correct size."""
+        return prompt.rjust(self.max_sequence_length, " ")
+
     def run(self):
         """Runs chat."""
         is_running = True
@@ -112,9 +113,11 @@ class Chat:
         prompts = [
             "1 is one bigger than 0. 2 is one bigger than 1. 3 is one bigger than 2. What is the sum of 1 and 2?",
         ]
+
         for prompt in prompts:
             print(f"\n{prompt}\n")
             if self._is_valid_prompt(prompt=prompt):
+                prompt = self._add_padding(prompt=prompt)
                 output = self._generate(prompt=prompt)
                 print(f"\n{output}\n")
 
@@ -130,6 +133,7 @@ class Chat:
 
             # Feed text to model
             if is_running and self._is_valid_prompt(prompt=prompt):
+                prompt = self._add_padding(prompt=prompt)
                 output = self._generate(prompt=prompt)
                 print(f"\n{output}\n")
 
@@ -153,11 +157,11 @@ if __name__ == "__main__":
     dataset = dataloader.dataset
 
     # Get the model
-    model = CharacterTransformer(config=config)
+    model = CharacterMixer(config=config)
     # model = torch.jit.script(model)
 
     ckpt_dir = config.dirs.weights
-    model_name = "lexicap"
+    model_name = "shakespeare"
     load_checkpoint(model=model, ckpt_dir=ckpt_dir, model_name=model_name)
     #config.trainer.device = torch.device("cpu")
     model.to(config.trainer.device)

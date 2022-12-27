@@ -1,7 +1,4 @@
-"""Provides datasets for image classification and autoregressive text generation.
-
-As augmentation, drop characters / entire words of the input sequence.
-"""
+"""Dataset class for character-level language models."""
 import torch
 from torch.utils.data import Dataset
 
@@ -26,9 +23,8 @@ class CharDataset(Dataset):
         self.data = data
         self.config = config
 
-        self.max_sequence_length = config.transformer.max_sequence_length
+        self.max_sequence_length = config.model.max_sequence_length
 
-        # TODO: Do this only once in a prepocessing step.
         chars = sorted(list(set(data)))
 
         # Create lookup-tables with character-index-pairs in both directions.
@@ -38,9 +34,7 @@ class CharDataset(Dataset):
         self.num_tokens = len(chars)
 
         print(f"Number of characters: {len(data)/1e6:.3f} M\n")
-        print(f"Unique characteres: {self.num_tokens}\n")
-
-        # self.look_back = 200
+        print(f"Unique characters: {self.num_tokens}\n")
 
     def __len__(self):
         return len(self.data) - self.max_sequence_length
@@ -67,19 +61,13 @@ class CharDataset(Dataset):
         is created:
 
         x = [9, 1, 4, 8, 2, 5, 3, 7]
-        y = [1, 4, 8, 2, 5, 3, 7, 6]
+        y = [6]
 
         Args:
             idx: Index to access string stored in data.
         """
-        # Try to find the start of a sentence.
-        # if idx > self.look_back:
-        #     idx_offset = self.data[idx-self.look_back:idx].rfind(".")
-        #     if idx_offset > -1:
-        #         idx -= (self.look_back - idx_offset - 2)  # -2 adjusts for period followed by blank space.
-
         char_sequence = self.data[idx : idx + self.max_sequence_length + 1]
         int_sequence = [self.char_to_index[char] for char in char_sequence]
         x = torch.tensor(data=int_sequence[:-1], dtype=torch.long)
-        y = torch.tensor(data=int_sequence[1:], dtype=torch.long)
+        y = torch.tensor(data=int_sequence[-1], dtype=torch.long)
         return x, y
