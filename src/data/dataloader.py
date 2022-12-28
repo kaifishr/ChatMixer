@@ -62,10 +62,6 @@ def get_dataloader(config: Config) -> tuple[DataLoader, DataLoader]:
         config.data.num_classes = train_dataset.num_tokens
         config.data.num_tokens = train_dataset.num_tokens
 
-    elif dataset == "enwik":
-        # dataset_url = "http://mattmahoney.net/dc/enwik8.zip"
-        raise NotImplementedError(f"Dataloader for {dataset} dataset not implemented.")
-
     else:
         raise NotImplementedError(f"Dataloader for {dataset} not implemented.")
 

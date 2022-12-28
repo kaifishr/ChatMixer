@@ -149,28 +149,13 @@ class Classifier(nn.Module):
         """Initializes Classifier class."""
         super().__init__()
 
-        sequence_length = config.model.sequence_length
         embedding_dim = config.model.embedding_dim
-        dropout_probability = config.model.dropout_probability
-        hidden_dim = int(embedding_dim // 4)
 
         num_classes = config.data.num_tokens
         self.classifier = nn.Sequential(
             nn.LayerNorm(embedding_dim),
-            # v1 
-            # AveragePool(dim=-2),
-            # nn.Linear(in_features=embedding_dim, out_features=num_classes)
-
-            # v2 
-            # nn.Linear(in_features=embedding_dim, out_features=hidden_dim),
-            # nn.GELU(),
-            # nn.Dropout(p=dropout_probability),
-            # nn.Flatten(),
-            # nn.Linear(in_features=sequence_length * hidden_dim, out_features=num_classes)
-
-            # v3
-            nn.Flatten(),
-            nn.Linear(in_features=sequence_length * embedding_dim, out_features=num_classes)
+            AveragePool(dim=-2),
+            nn.Linear(in_features=embedding_dim, out_features=num_classes)
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:

@@ -38,7 +38,7 @@ class Chat:
         # Maximum number of generated tokens.
         self.max_num_tokens = 500
         self.temperature = 0.6
-        self.do_sample = False
+        self.do_sample = False 
         self.top_k = 10
 
     @torch.no_grad()
@@ -97,7 +97,7 @@ class Chat:
         """Checks if input prompt contains any illegal characters."""
         for character in prompt:
             if character not in self.valid_characters:
-                print(f"Character '{character}' was not part of the training data.")
+                print(f"\nCharacter '{character}' was not part of the training data.")
                 return False
         return True
 
@@ -109,7 +109,6 @@ class Chat:
         """Tests model with some simple prompts."""
         prompts = [
             "Why is there something rather than nothing?",
-            "Why is there anything at all?",
         ]
 
         for prompt in prompts:
@@ -148,7 +147,6 @@ if __name__ == "__main__":
     print(cwd)
 
     # Get configuration file
-    # config_path = "weights/config4.yml"
     config_path = "config.yml"
     config = init_config(file_path=config_path)
 
@@ -160,11 +158,12 @@ if __name__ == "__main__":
 
     # Get the model
     model = CharacterMixer(config=config)
-    model = torch.jit.script(model)
+    # model = torch.jit.script(model)
 
     ckpt_dir = config.dirs.weights
     model_name = config.load_model.model_name
     load_checkpoint(model=model, ckpt_dir=ckpt_dir, model_name=model_name)
+    # config.trainer.device = torch.device("cpu")
     model.to(config.trainer.device)
     model.eval()
 

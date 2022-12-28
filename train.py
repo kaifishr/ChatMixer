@@ -25,7 +25,7 @@ def train_mixer():
 
     # Get the model.
     model = CharacterMixer(config=config)
-    model = torch.jit.script(model)
+    # model = torch.jit.script(model)
 
     count_model_parameters(model=model)
 
