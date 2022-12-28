@@ -38,7 +38,7 @@ trainer:
 
 load_model:
   is_activated: false 
-  model_name: "lexicap"
+  model_name: "lexicap_03"
   model_path: -1
 
 ########
