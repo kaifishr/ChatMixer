@@ -1,11 +1,11 @@
-tag: "03"
-random_seed: 44
+tag: "v3"
+random_seed: 45
 
 ##############
 # Dataloader #
 ##############
-# shakespeare, lexicap
 dataloader:
+  # shakespeare, lexicap
   dataset: "lexicap"
   num_workers: 2
 
@@ -14,31 +14,30 @@ dataloader:
 #########
 model:
   sequence_length: 128
-  embedding_dims: 128
-  token_dims: 1024
-  channel_dims: 1024
-  expansion_factor: 4  # instead of token_dims / channel_dims
-  num_blocks: 8
-  dropout_probability: 0.3
+  embedding_dim: 64
+  expansion_factor: 4
+  num_blocks: 4
+  dropout_probability: 0.1
 
 ###########
 # Trainer #
 ###########
 trainer:
-  device: "gpu"   # gpu, cpu
+  # gpu, cpu
+  device: "gpu"
   start_update_step: 0
-  num_update_steps: 50000
-  batch_size: 128
+  num_update_steps: 20000
+  batch_size: 256
   weight_decay: 0
   initial_learning_rate: 1.0e-6
-  max_learning_rate: 0.002
+  max_learning_rate: 0.005
   gradient_clipping:
     is_activated: true 
     max_norm: 1.0
 
 load_model:
   is_activated: false 
-  model_name: "lexicap_03"
+  model_name: "lexicap"
   model_path: -1
 
 ########
@@ -59,11 +58,11 @@ summary:
   save_model:
     every_n_updates: 5000
   add_position_embeddings:
-    every_n_updates: 1000
+    every_n_updates: 2000
   add_token_embeddings:
-    every_n_updates: 1000
+    every_n_updates: 2000
   add_linear_weights:
-    every_n_updates: 1000
+    every_n_updates: 2000
   add_graph: false
 
 ###############

@@ -7,22 +7,24 @@ from src.config import Config
 
 class MlpBlock(nn.Module):
 
-    def __init__(self, dims: int, hidden_dims: int, config: Config) -> None:
+    def __init__(self, dim: int, config: Config) -> None:
         super().__init__()
 
         dropout_probability = config.model.dropout_probability
+        expansion_factor = config.model.expansion_factor
+
+        hidden_dim = expansion_factor * dim
 
         self.mlp_block = nn.Sequential(
-            nn.Linear(in_features=dims, out_features=hidden_dims),
+            nn.Linear(in_features=dim, out_features=hidden_dim),
             nn.GELU(),
             nn.Dropout(p=dropout_probability),
-            nn.Linear(in_features=hidden_dims, out_features=dims),
+            nn.Linear(in_features=hidden_dim, out_features=dim),
             nn.Dropout(p=dropout_probability)
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        x = self.mlp_block(x)
-        return x
+        return self.mlp_block(x)
 
 
 class SwapAxes(nn.Module):
@@ -46,20 +48,18 @@ class MixerBlock(nn.Module):
         super().__init__()
 
         sequence_length = config.model.sequence_length
-        embedding_dims = config.model.embedding_dims
-        token_dims = config.model.token_dims
-        channel_dims = config.model.channel_dims
+        embedding_dim = config.model.embedding_dim
 
         self.token_mixer = nn.Sequential(
-            nn.LayerNorm(embedding_dims),
+            nn.LayerNorm(embedding_dim),
             SwapAxes(axis0=-2, axis1=-1),
-            MlpBlock(sequence_length, token_dims, config),
+            MlpBlock(dim=sequence_length, config=config),
             SwapAxes(axis0=-2, axis1=-1),
         )
 
         self.channel_mixer = nn.Sequential(
-            nn.LayerNorm(embedding_dims),
-            MlpBlock(embedding_dims, channel_dims, config),
+            nn.LayerNorm(embedding_dim),
+            MlpBlock(dim=embedding_dim, config=config),
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
@@ -83,10 +83,10 @@ class TokenEmbedding(nn.Module):
         super().__init__()
 
         num_tokens = config.data.num_tokens
-        embedding_dims = config.model.embedding_dims
+        embedding_dim = config.model.embedding_dim
         dropout_probability = config.model.dropout_probability
 
-        size = (num_tokens, embedding_dims)
+        size = (num_tokens, embedding_dim)
         embedding = torch.normal(mean=0.0, std=0.02, size=size)
         self.embedding = nn.Parameter(data=embedding, requires_grad=True)
         self.dropout = nn.Dropout(p=dropout_probability)
@@ -118,10 +118,10 @@ class PositionEmbedding(nn.Module):
         super().__init__()
 
         sequence_length = config.model.sequence_length
-        embedding_dims = config.model.embedding_dims
+        embedding_dim = config.model.embedding_dim
         dropout_probability = config.model.dropout_probability
 
-        size = (sequence_length, embedding_dims)
+        size = (sequence_length, embedding_dim)
         embedding = torch.normal(mean=0.0, std=0.02, size=size)
         self.embedding = nn.Parameter(data=embedding, requires_grad=True)
         self.dropout = nn.Dropout(p=dropout_probability)
@@ -150,25 +150,27 @@ class Classifier(nn.Module):
         super().__init__()
 
         sequence_length = config.model.sequence_length
-        embedding_dims = config.model.embedding_dims
-        # dropout_probability = config.model.dropout_probability
-        # hidden_dim = 32
+        embedding_dim = config.model.embedding_dim
+        dropout_probability = config.model.dropout_probability
+        hidden_dim = int(embedding_dim // 4)
 
         num_classes = config.data.num_tokens
         self.classifier = nn.Sequential(
-            nn.LayerNorm(embedding_dims),
-            # Option 0
+            nn.LayerNorm(embedding_dim),
+            # v1 
             # AveragePool(dim=-2),
-            # nn.Linear(in_features=hidden_dim, out_features=num_classes)
-            # Option 1
-            # nn.Linear(in_features=embedding_dims, out_features=hidden_dim)
+            # nn.Linear(in_features=embedding_dim, out_features=num_classes)
+
+            # v2 
+            # nn.Linear(in_features=embedding_dim, out_features=hidden_dim),
             # nn.GELU(),
             # nn.Dropout(p=dropout_probability),
             # nn.Flatten(),
             # nn.Linear(in_features=sequence_length * hidden_dim, out_features=num_classes)
-            # Option 2
+
+            # v3
             nn.Flatten(),
-            nn.Linear(in_features=sequence_length * embedding_dims, out_features=num_classes)
+            nn.Linear(in_features=sequence_length * embedding_dim, out_features=num_classes)
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
