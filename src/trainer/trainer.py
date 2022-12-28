@@ -178,9 +178,11 @@ class Trainer:
                             "test_accuracy", test_accuracy, global_step=update_step
                         )
 
-                update_step += 1
                 self._write_summary(model=model, writer=writer, update_step=update_step)
+                update_step += 1
 
+        num_update_steps = config.trainer.num_update_steps
+        self._write_summary(model=model, writer=writer, update_step=num_update_steps)
         writer.close()
 
     def _write_summary(self, model, writer, update_step: int) -> None:

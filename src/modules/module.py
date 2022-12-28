@@ -151,12 +151,22 @@ class Classifier(nn.Module):
 
         sequence_length = config.model.sequence_length
         embedding_dims = config.model.embedding_dims
+        # dropout_probability = config.model.dropout_probability
+        # hidden_dim = 32
 
         num_classes = config.data.num_tokens
         self.classifier = nn.Sequential(
             nn.LayerNorm(embedding_dims),
-            # AveragePool(dim=-2),  # TODO: Replace with flatten
-            # nn.Linear(in_features=embedding_dims, out_features=num_classes)
+            # Option 0
+            # AveragePool(dim=-2),
+            # nn.Linear(in_features=hidden_dim, out_features=num_classes)
+            # Option 1
+            # nn.Linear(in_features=embedding_dims, out_features=hidden_dim)
+            # nn.GELU(),
+            # nn.Dropout(p=dropout_probability),
+            # nn.Flatten(),
+            # nn.Linear(in_features=sequence_length * hidden_dim, out_features=num_classes)
+            # Option 2
             nn.Flatten(),
             nn.Linear(in_features=sequence_length * embedding_dims, out_features=num_classes)
         )
