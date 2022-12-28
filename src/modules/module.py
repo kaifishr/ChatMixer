@@ -5,26 +5,19 @@ import torch.nn as nn
 from src.config import Config
 
 
-class AveragePool(nn.Module):
-
-    def __init__(self, dim: int):
-        super().__init__()
-        self.dim = dim
-
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        x = torch.mean(x, dim=self.dim)
-        return x
-
-
 class MlpBlock(nn.Module):
 
-    def __init__(self, dims: int, hidden_dims: int):
+    def __init__(self, dims: int, hidden_dims: int, config: Config) -> None:
         super().__init__()
+
+        dropout_probability = config.model.dropout_probability
 
         self.mlp_block = nn.Sequential(
             nn.Linear(in_features=dims, out_features=hidden_dims),
             nn.GELU(),
+            nn.Dropout(p=dropout_probability),
             nn.Linear(in_features=hidden_dims, out_features=dims),
+            nn.Dropout(p=dropout_probability)
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
@@ -44,25 +37,29 @@ class SwapAxes(nn.Module):
 
 
 class MixerBlock(nn.Module):
+    """MLP Mixer block
+    
+    Mixes channel and token dimension one after the other.
+    """
 
     def __init__(self, config: Config):
         super().__init__()
 
         sequence_length = config.model.sequence_length
-        model_dims = config.model.num_dims  # embedding_dim
+        embedding_dims = config.model.embedding_dims
         token_dims = config.model.token_dims
         channel_dims = config.model.channel_dims
 
         self.token_mixer = nn.Sequential(
-            nn.LayerNorm(model_dims),
+            nn.LayerNorm(embedding_dims),
             SwapAxes(axis0=-2, axis1=-1),
-            MlpBlock(sequence_length, token_dims),
+            MlpBlock(sequence_length, token_dims, config),
             SwapAxes(axis0=-2, axis1=-1),
         )
 
         self.channel_mixer = nn.Sequential(
-            nn.LayerNorm(model_dims),
-            MlpBlock(model_dims, channel_dims),
+            nn.LayerNorm(embedding_dims),
+            MlpBlock(embedding_dims, channel_dims, config),
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
@@ -72,7 +69,7 @@ class MixerBlock(nn.Module):
 
 
 class TokenEmbedding(nn.Module):
-    """Token embedding module.
+    """Token embedding module
 
     Embeds an integer as a vector of defined dimension.
 
@@ -86,11 +83,13 @@ class TokenEmbedding(nn.Module):
         super().__init__()
 
         num_tokens = config.data.num_tokens
-        embedding_dim = config.model.num_dims
+        embedding_dims = config.model.embedding_dims
+        dropout_probability = config.model.dropout_probability
 
-        size = (num_tokens, embedding_dim)
-        embedding = torch.normal(mean=0.0, std=0.01, size=size)
+        size = (num_tokens, embedding_dims)
+        embedding = torch.normal(mean=0.0, std=0.02, size=size)
         self.embedding = nn.Parameter(data=embedding, requires_grad=True)
+        self.dropout = nn.Dropout(p=dropout_probability)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """Receives sequences of token identifiers and returns embedding.
@@ -102,13 +101,12 @@ class TokenEmbedding(nn.Module):
             Embedded tokens.
         """
         x = self.embedding[x]
+        x = self.dropout(x)
         return x
 
 
 class PositionEmbedding(nn.Module):
     """Positional embedding module.
-
-    Positional embedding with different encoding schemes.
 
     Attributes:
         sequence_length:
@@ -119,27 +117,29 @@ class PositionEmbedding(nn.Module):
         """Initializes PositionalEmbedding."""
         super().__init__()
 
-        embedding_dim = config.model.num_dims
         sequence_length = config.model.sequence_length
+        embedding_dims = config.model.embedding_dims
+        dropout_probability = config.model.dropout_probability
 
-        size = (sequence_length, embedding_dim)
-
-        if config.model.position_embedding.encoding == "zeros":
-            embedding = torch.zeros(size=size)
-        elif config.model.position_embedding.encoding == "ones":
-            embedding = torch.ones(size=size)
-        elif config.model.position_embedding.encoding == "random_normal":
-            embedding = torch.normal(mean=0.0, std=0.01, size=size)
-        else:
-            raise NotImplementedError(
-                f"Embedding {config.model.position_embedding} not implemented."
-            )
-
-        requires_grad = True if config.model.position_embedding.is_trainable else False
-        self.embedding = nn.Parameter(data=embedding, requires_grad=requires_grad)
+        size = (sequence_length, embedding_dims)
+        embedding = torch.normal(mean=0.0, std=0.02, size=size)
+        self.embedding = nn.Parameter(data=embedding, requires_grad=True)
+        self.dropout = nn.Dropout(p=dropout_probability)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         x = x + self.embedding
+        x = self.dropout(x)
+        return x
+
+
+class AveragePool(nn.Module):
+
+    def __init__(self, dim: int):
+        super().__init__()
+        self.dim = dim
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        x = torch.mean(x, dim=self.dim)
         return x
 
 
@@ -150,16 +150,15 @@ class Classifier(nn.Module):
         super().__init__()
 
         sequence_length = config.model.sequence_length
-        num_dims = config.model.num_dims  # -> embedding_dim
+        embedding_dims = config.model.embedding_dims
 
         num_classes = config.data.num_tokens
-        use_bias = config.model.classifier.use_bias
         self.classifier = nn.Sequential(
-            nn.LayerNorm(num_dims),
+            nn.LayerNorm(embedding_dims),
             # AveragePool(dim=-2),  # TODO: Replace with flatten
-            # nn.Linear(in_features=num_dims, out_features=num_classes, bias=use_bias)
+            # nn.Linear(in_features=embedding_dims, out_features=num_classes)
             nn.Flatten(),
-            nn.Linear(in_features=sequence_length * num_dims, out_features=num_classes, bias=use_bias)
+            nn.Linear(in_features=sequence_length * embedding_dims, out_features=num_classes)
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:

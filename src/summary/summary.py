@@ -1,7 +1,4 @@
-"""
-summary.py
-
-Script holds methods for Tensorboard.
+"""Holds methods for Tensorboard.
 """
 import math
 
