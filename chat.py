@@ -33,10 +33,10 @@ class Chat:
         self.valid_characters = list(self.dataset.char_to_index)
 
         self.device = self.config.trainer.device
-        self.max_sequence_length = self.config.model.max_sequence_length
+        self.sequence_length = self.config.model.sequence_length
 
         # Maximum number of generated tokens.
-        self.max_num_tokens = 200
+        self.max_num_tokens = 500
         self.temperature = 0.6
         self.do_sample = False
         self.top_k = 10
@@ -63,8 +63,8 @@ class Chat:
             # Make sure that the sequence length is smaller than max sequence length.
             sequence = (
                 x
-                if x.size(-1) <= self.max_sequence_length
-                else x[:, -self.max_sequence_length :]
+                if x.size(-1) <= self.sequence_length
+                else x[:, -self.sequence_length :]
             )
 
             # Feed sequence into model.
@@ -103,7 +103,7 @@ class Chat:
 
     def _add_padding(self, prompt: str, char: str = " ") -> str:
         """Pads input prompt to have correct size."""
-        return prompt.rjust(self.max_sequence_length, " ")
+        return prompt.rjust(self.sequence_length, " ")
 
     def run(self):
         """Runs chat."""
@@ -161,7 +161,7 @@ if __name__ == "__main__":
     # model = torch.jit.script(model)
 
     ckpt_dir = config.dirs.weights
-    model_name = "shakespeare"
+    model_name = "lexicap"
     load_checkpoint(model=model, ckpt_dir=ckpt_dir, model_name=model_name)
     #config.trainer.device = torch.device("cpu")
     model.to(config.trainer.device)

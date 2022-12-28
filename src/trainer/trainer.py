@@ -11,6 +11,7 @@ from src.summary.summary import (
     add_graph,
     add_token_embedding_weights,
     add_position_embedding_weights,
+    add_linear_weights,
 )
 
 
@@ -72,18 +73,18 @@ class Trainer:
     def run(self):
         """Main training logic."""
 
+        config = self.config
         writer = self.writer
         model = self.model
         optimizer = self.optimizer
         criterion = self.criterion
         scheduler = self.scheduler
-        config = self.config
-        device = self.config.trainer.device
+        device = config.trainer.device
 
         train_loader, test_loader = self.dataloader
 
-        update_step = 0  # 60000  # num_updates, num_batch_updates?
-        # self.scheduler.last_epoch = update_step
+        update_step = config.trainer.start_update_step
+        self.scheduler.last_epoch = update_step
 
         while update_step < self.num_update_steps:
 
@@ -100,7 +101,7 @@ class Trainer:
                 inputs, labels = x_data.to(device), y_data.to(device)
 
                 # Zero the parameter gradients.
-                optimizer.zero_grad()
+                optimizer.zero_grad(set_to_none=True)
 
                 # Feedforward.
                 outputs = model(inputs)
@@ -127,7 +128,6 @@ class Trainer:
                 )
                 running_counter += labels.size(0)
 
-                print(update_step)
                 if config.summary.save_train_stats.every_n_updates > 0:
                     if (
                         update_step % config.summary.save_train_stats.every_n_updates
@@ -203,6 +203,16 @@ class Trainer:
                         == 0
                     ):
                         add_position_embedding_weights(
+                            model=model, writer=writer, global_step=update_step
+                        )
+
+                if config.summary.add_linear_weights.every_n_updates > 0:
+                    if (
+                        update_step
+                        % config.summary.add_linear_weights.every_n_updates
+                        == 0
+                    ):
+                        add_linear_weights(
                             model=model, writer=writer, global_step=update_step
                         )
 

@@ -48,7 +48,7 @@ class MixerBlock(nn.Module):
     def __init__(self, config: Config):
         super().__init__()
 
-        sequence_length = config.model.max_sequence_length
+        sequence_length = config.model.sequence_length
         model_dims = config.model.num_dims  # embedding_dim
         token_dims = config.model.token_dims
         channel_dims = config.model.channel_dims
@@ -70,13 +70,14 @@ class MixerBlock(nn.Module):
         x = x + self.channel_mixer(x)
         return x
 
+
 class TokenEmbedding(nn.Module):
     """Token embedding module.
 
     Embeds an integer as a vector of defined dimension.
 
     Attributes:
-        max_sequence_length:
+        sequence_length:
         embedding_dim:
     """
 
@@ -101,8 +102,6 @@ class TokenEmbedding(nn.Module):
             Embedded tokens.
         """
         x = self.embedding[x]
-        # x = self.embedding(x)  # TODO: use this later with nn.Embedding
-        # x = F.embedding(x, self.embedding)  # TODO: Check this.
         return x
 
 
@@ -112,7 +111,7 @@ class PositionEmbedding(nn.Module):
     Positional embedding with different encoding schemes.
 
     Attributes:
-        max_sequence_length:
+        sequence_length:
         embedding_dim:
     """
 
@@ -121,9 +120,9 @@ class PositionEmbedding(nn.Module):
         super().__init__()
 
         embedding_dim = config.model.num_dims
-        max_sequence_length = config.model.max_sequence_length
+        sequence_length = config.model.sequence_length
 
-        size = (max_sequence_length, embedding_dim)
+        size = (sequence_length, embedding_dim)
 
         if config.model.position_embedding.encoding == "zeros":
             embedding = torch.zeros(size=size)
@@ -140,6 +139,29 @@ class PositionEmbedding(nn.Module):
         self.embedding = nn.Parameter(data=embedding, requires_grad=requires_grad)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        sequence_length = x.size(1)
-        x = x + self.embedding[:sequence_length]
+        x = x + self.embedding
+        return x
+
+
+class Classifier(nn.Module):
+
+    def __init__(self, config: Config) -> None:
+        """Initializes Classifier class."""
+        super().__init__()
+
+        sequence_length = config.model.sequence_length
+        num_dims = config.model.num_dims  # -> embedding_dim
+
+        num_classes = config.data.num_tokens
+        use_bias = config.model.classifier.use_bias
+        self.classifier = nn.Sequential(
+            nn.LayerNorm(num_dims),
+            # AveragePool(dim=-2),  # TODO: Replace with flatten
+            # nn.Linear(in_features=num_dims, out_features=num_classes, bias=use_bias)
+            nn.Flatten(),
+            nn.Linear(in_features=sequence_length * num_dims, out_features=num_classes, bias=use_bias)
+        )
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        x = self.classifier(x)
         return x

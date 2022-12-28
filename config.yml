@@ -1,5 +1,5 @@
 tag: ""
-random_seed: 42
+random_seed: 44
 
 ##############
 # Dataloader #
@@ -13,25 +13,23 @@ dataloader:
 # Model #
 #########
 model:
-  max_sequence_length: 1024 # or just sequence_length as it is static for mixers
-  num_dims: 256  # dim, embedding_dims
-  token_dims: 1024
-  channel_dims: 1024
-  num_blocks: 16
+  sequence_length: 256
+  num_dims: 128  # dim, embedding_dims
+  token_dims: 1024  # dims_hidden_token
+  channel_dims: 1024  # token_dims = channel_dims = 256, dims_hidden_channel
+  num_blocks: 32
   # Available encoding schemes: ones, zeros, random_normal
   position_embedding:
     is_activated: true
     is_trainable: true
-    encoding: "random_normal"
+    encoding: "zeros"
   mixer_block:
-    # dim: 128
     dropout_prob: 0.05
     use_bias: True
   mlp_block:
-    # hidden_dim: 256
     dropout_prob: 0.05
     use_bias: True
-  classifier: # head
+  classifier:
     use_bias: True
 
 ###########
@@ -39,8 +37,9 @@ model:
 ###########
 trainer:
   device: "gpu"   # gpu, cpu
+  start_update_step: 0
   num_update_steps: 100000
-  batch_size: 4
+  batch_size: 64
   weight_decay: 0
   initial_learning_rate: 1.0e-6
   max_learning_rate: 0.001
@@ -51,7 +50,7 @@ trainer:
 
 load_model:
   is_activated: false 
-  model_name: "ckpt"
+  model_name: "lexicap"
   model_path: -1
 
 ########
@@ -74,11 +73,11 @@ summary:
   add_patch_embeddings:
     every_n_updates: -1 
   add_position_embeddings:
-    every_n_updates: 5000
+    every_n_updates: 1000
   add_token_embeddings:
-    every_n_updates: 5000
-  add_mask_weights:
-    every_n_updates: 5000
+    every_n_updates: 1000
+  add_linear_weights:
+    every_n_updates: 1000
   add_params_hist:
     every_n_updates: -1
   add_graph: false

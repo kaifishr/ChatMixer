@@ -4,7 +4,11 @@ from src.config.config import init_config
 from src.data.dataloader import get_dataloader
 from src.modules.model import CharacterMixer
 from src.trainer.trainer import Trainer
-from src.utils.tools import set_random_seed, load_checkpoint
+from src.utils.tools import (
+    set_random_seed, 
+    load_checkpoint, 
+    count_model_parameters
+)
 
 
 def train_mixer():
@@ -20,6 +24,7 @@ def train_mixer():
 
     # Get the model.
     model = CharacterMixer(config=config)
+    count_model_parameters(model=model)
 
     # Load pre-trained model.
     if config.load_model.is_activated:
