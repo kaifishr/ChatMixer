@@ -1,6 +1,6 @@
 # **ChatMixer**
 
-A [MLP-Mixer](https://arxiv.org/abs/2105.01601) architecture for character-level natural language processing.
+An [MLP-Mixer](https://arxiv.org/abs/2105.01601) architecture for character-level natural language processing.
 
 
 # Installation
@@ -30,7 +30,7 @@ cd ChatMixer
 tensorboard --logdir runs/
 ```
 
-Start chatting with a Mixer:
+Start chatting with a mixer:
 
 ```console
 cd ChatMixer 
@@ -41,3 +41,28 @@ python chat.py
 
 - Add perplexity metric.
 - Drop characters / entire words of the input sequence.
+
+# References
+
+[MLP-Mixer: An all-MLP Architecture for Vision](https://arxiv.org/abs/2105.01601)
+
+
+# Citation
+
+If you find this project useful, please use BibTeX to cite it as:
+
+```bibtex
+@article{fischer2022chatmixer,
+  title   = "ChatMixer",
+  author  = "Fischer, Kai",
+  journal = "GitHub repository",
+  year    = "2022",
+  month   = "December",
+  url     = "https://github.com/kaifishr/ChatMixer"
+}
+```
+
+
+# License
+
+MIT

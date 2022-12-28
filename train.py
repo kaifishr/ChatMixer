@@ -1,4 +1,5 @@
 """Main script to run experiments."""
+import torch
 
 from src.config.config import init_config
 from src.data.dataloader import get_dataloader
@@ -24,6 +25,8 @@ def train_mixer():
 
     # Get the model.
     model = CharacterMixer(config=config)
+    model = torch.jit.script(model)
+
     count_model_parameters(model=model)
 
     # Load pre-trained model.

@@ -178,55 +178,14 @@ class Trainer:
                             "test_accuracy", test_accuracy, global_step=update_step
                         )
 
-                # if config.summary.save_model.every_n_updates > 0:
-                #     if update_step % config.summary.save_model.every_n_updates == 0:
-                #         dataset = config.dataloader.dataset
-                #         tag = f"_{config.tag}" if config.tag else ""
-                #         model_name = f"{dataset}{tag}.pth"
-                #         model_path = os.path.join(config.dirs.weights, model_name)
-                #         torch.save(model.state_dict(), model_path)
-
-                # if config.summary.add_token_embeddings.every_n_updates > 0:
-                #     if (
-                #         update_step
-                #         % config.summary.add_token_embeddings.every_n_updates
-                #         == 0
-                #     ):
-                #         add_token_embedding_weights(
-                #             model=model, writer=writer, global_step=update_step
-                #         )
-
-                # if config.summary.add_position_embeddings.every_n_updates > 0:
-                #     if (
-                #         update_step
-                #         % config.summary.add_position_embeddings.every_n_updates
-                #         == 0
-                #     ):
-                #         add_position_embedding_weights(
-                #             model=model, writer=writer, global_step=update_step
-                #         )
-
-                # if config.summary.add_linear_weights.every_n_updates > 0:
-                #     if (
-                #         update_step
-                #         % config.summary.add_linear_weights.every_n_updates
-                #         == 0
-                #     ):
-                #         add_linear_weights(
-                #             model=model, writer=writer, global_step=update_step
-                #         )
-                self._write_summary(model=model, writer=writer, update_step=update_step)
                 update_step += 1
+                self._write_summary(model=model, writer=writer, update_step=update_step)
 
         writer.close()
 
     def _write_summary(self, model, writer, update_step: int) -> None:
         """"""
         config = self.config
-
-        if config.summary.add_linear_weights.every_n_updates > 0:
-            if (update_step % config.summary.add_linear_weights.every_n_updates == 0):
-                add_linear_weights(model=model, writer=writer, global_step=update_step)
 
         if config.summary.save_model.every_n_updates > 0:
             if update_step % config.summary.save_model.every_n_updates == 0:
@@ -235,6 +194,10 @@ class Trainer:
                 model_name = f"{dataset}{tag}.pth"
                 model_path = os.path.join(config.dirs.weights, model_name)
                 torch.save(model.state_dict(), model_path)
+
+        if config.summary.add_linear_weights.every_n_updates > 0:
+            if (update_step % config.summary.add_linear_weights.every_n_updates == 0):
+                add_linear_weights(model=model, writer=writer, global_step=update_step)
 
         if config.summary.add_token_embeddings.every_n_updates > 0:
             if (update_step % config.summary.add_token_embeddings.every_n_updates == 0):

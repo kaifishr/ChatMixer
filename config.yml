@@ -27,11 +27,11 @@ model:
 trainer:
   device: "gpu"   # gpu, cpu
   start_update_step: 0
-  num_update_steps: 20000
-  batch_size: 64
+  num_update_steps: 50000
+  batch_size: 128
   weight_decay: 0
   initial_learning_rate: 1.0e-6
-  max_learning_rate: 0.001
+  max_learning_rate: 0.002
   gradient_clipping:
     is_activated: true 
     max_norm: 1.0
