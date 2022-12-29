@@ -6,7 +6,7 @@ random_seed: 42
 ##############
 dataloader:
   # shakespeare, lexicap
-  dataset: "shakespeare"
+  dataset: "lexicap"
   num_workers: 2
 
 #########
@@ -16,7 +16,7 @@ model:
   sequence_length: 128
   embedding_dim: 256
   expansion_factor: 4
-  num_blocks: 8
+  num_blocks: 4
   dropout_probability: 0.1
 
 ###########
@@ -26,8 +26,8 @@ trainer:
   # gpu, cpu
   device: "gpu"
   start_update_step: 0
-  num_update_steps: 20000
-  batch_size: 256
+  num_update_steps: 100000
+  batch_size: 512
   weight_decay: 0
   initial_learning_rate: 1.0e-6
   max_learning_rate: 0.01
@@ -37,7 +37,7 @@ trainer:
 
 load_model:
   is_activated: false 
-  model_name: "shakespeare"
+  model_name: "lexicap"
   model_path: -1
 
 ########

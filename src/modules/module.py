@@ -5,6 +5,67 @@ import torch.nn as nn
 from src.config import Config
 
 
+class TokenEmbedding(nn.Module):
+    """Token embedding module
+
+    Embeds an integer as a vector of defined dimension.
+
+    Attributes:
+        sequence_length:
+        embedding_dim:
+    """
+
+    def __init__(self, config: Config) -> None:
+        """Initializes PositionalEmbedding."""
+        super().__init__()
+
+        num_tokens = config.data.num_tokens
+        embedding_dim = config.model.embedding_dim
+        dropout_probability = config.model.dropout_probability
+
+        size = (num_tokens, embedding_dim)
+        embedding = torch.normal(mean=0.0, std=0.02, size=size)
+        self.embedding = nn.Parameter(data=embedding, requires_grad=True)
+        self.dropout = nn.Dropout1d(p=dropout_probability)  # drop entire characters.
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """Receives sequences of token identifiers and returns embedding.
+
+        Args:
+            x: Integer tensor holding integer token identifiers.
+
+        Returns:
+            Embedded tokens.
+        """
+        x = self.embedding[x]
+        x = self.dropout(x)
+        return x
+
+
+class PositionEmbedding(nn.Module):
+    """Positional embedding module.
+
+    Attributes:
+        sequence_length:
+        embedding_dim:
+    """
+
+    def __init__(self, config: Config) -> None:
+        """Initializes PositionalEmbedding."""
+        super().__init__()
+
+        sequence_length = config.model.sequence_length
+        embedding_dim = config.model.embedding_dim
+
+        size = (sequence_length, embedding_dim)
+        embedding = torch.normal(mean=0.0, std=0.02, size=size)
+        self.embedding = nn.Parameter(data=embedding, requires_grad=True)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        x = x + self.embedding
+        return x
+
+
 class MlpBlock(nn.Module):
 
     def __init__(self, dim: int, config: Config) -> None:
@@ -20,6 +81,7 @@ class MlpBlock(nn.Module):
             nn.GELU(),
             nn.Dropout(p=dropout_probability),
             nn.Linear(in_features=hidden_dim, out_features=dim),
+            nn.GELU(),
             nn.Dropout(p=dropout_probability)
         )
 
@@ -65,70 +127,6 @@ class MixerBlock(nn.Module):
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         x = x + self.token_mixer(x)
         x = x + self.channel_mixer(x)
-        return x
-
-
-class TokenEmbedding(nn.Module):
-    """Token embedding module
-
-    Embeds an integer as a vector of defined dimension.
-
-    Attributes:
-        sequence_length:
-        embedding_dim:
-    """
-
-    def __init__(self, config: Config) -> None:
-        """Initializes PositionalEmbedding."""
-        super().__init__()
-
-        num_tokens = config.data.num_tokens
-        embedding_dim = config.model.embedding_dim
-        dropout_probability = config.model.dropout_probability
-
-        size = (num_tokens, embedding_dim)
-        embedding = torch.normal(mean=0.0, std=0.02, size=size)
-        self.embedding = nn.Parameter(data=embedding, requires_grad=True)
-        self.dropout = nn.Dropout(p=dropout_probability)
-
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """Receives sequences of token identifiers and returns embedding.
-
-        Args:
-            x: Integer tensor holding integer token identifiers.
-
-        Returns:
-            Embedded tokens.
-        """
-        x = self.embedding[x]
-        x = self.dropout(x)
-        return x
-
-
-class PositionEmbedding(nn.Module):
-    """Positional embedding module.
-
-    Attributes:
-        sequence_length:
-        embedding_dim:
-    """
-
-    def __init__(self, config: Config) -> None:
-        """Initializes PositionalEmbedding."""
-        super().__init__()
-
-        sequence_length = config.model.sequence_length
-        embedding_dim = config.model.embedding_dim
-        dropout_probability = config.model.dropout_probability
-
-        size = (sequence_length, embedding_dim)
-        embedding = torch.normal(mean=0.0, std=0.02, size=size)
-        self.embedding = nn.Parameter(data=embedding, requires_grad=True)
-        self.dropout = nn.Dropout(p=dropout_probability)
-
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        x = x + self.embedding
-        x = self.dropout(x)
         return x
 
 
