@@ -21,12 +21,10 @@ class TokenEmbedding(nn.Module):
 
         num_tokens = config.data.num_tokens
         embedding_dim = config.model.embedding_dim
-        dropout_probability = config.model.dropout_probability
 
         size = (num_tokens, embedding_dim)
         embedding = torch.normal(mean=0.0, std=0.02, size=size)
         self.embedding = nn.Parameter(data=embedding, requires_grad=True)
-        self.dropout = nn.Dropout1d(p=dropout_probability)  # drop entire characters.
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """Receives sequences of token identifiers and returns embedding.
@@ -38,7 +36,6 @@ class TokenEmbedding(nn.Module):
             Embedded tokens.
         """
         x = self.embedding[x]
-        x = self.dropout(x)
         return x
 
 
@@ -71,7 +68,6 @@ class MlpBlock(nn.Module):
     def __init__(self, dim: int, config: Config) -> None:
         super().__init__()
 
-        dropout_probability = config.model.dropout_probability
         expansion_factor = config.model.expansion_factor
 
         hidden_dim = expansion_factor * dim
@@ -79,10 +75,8 @@ class MlpBlock(nn.Module):
         self.mlp_block = nn.Sequential(
             nn.Linear(in_features=dim, out_features=hidden_dim),
             nn.GELU(),
-            nn.Dropout(p=dropout_probability),
             nn.Linear(in_features=hidden_dim, out_features=dim),
             nn.GELU(),
-            nn.Dropout(p=dropout_probability)
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:

@@ -13,11 +13,10 @@ dataloader:
 # Model #
 #########
 model:
-  sequence_length: 128
-  embedding_dim: 256
+  sequence_length: 64
+  embedding_dim: 1024
   expansion_factor: 4
-  num_blocks: 4
-  dropout_probability: 0.1
+  num_blocks: 16
 
 ###########
 # Trainer #
@@ -26,8 +25,8 @@ trainer:
   # gpu, cpu
   device: "gpu"
   start_update_step: 0
-  num_update_steps: 100000
-  batch_size: 512
+  num_update_steps: 200000
+  batch_size: 64
   weight_decay: 0
   initial_learning_rate: 1.0e-6
   max_learning_rate: 0.01
@@ -68,7 +67,7 @@ summary:
 ###############
 # Directories #
 ###############
-dirs:  # TODO: dirs -> dir
+dirs:
   data: "data"
   runs: "runs"
   weights: "weights"

@@ -59,6 +59,7 @@ Well, that looks pretty mixed up.
 
 - Add perplexity metric.
 - Drop characters / entire words of the input sequence.
+- Predict more than one token at a time.
 
 # References
 
