@@ -11,7 +11,6 @@ class TokenEmbedding(nn.Module):
     Embeds an integer as a vector of defined dimension.
 
     Attributes:
-        sequence_length:
         embedding_dim:
     """
 
@@ -51,7 +50,7 @@ class PositionEmbedding(nn.Module):
         """Initializes PositionalEmbedding."""
         super().__init__()
 
-        sequence_length = config.model.sequence_length
+        sequence_length = config.model.input_sequence_length
         embedding_dim = config.model.embedding_dim
 
         size = (sequence_length, embedding_dim)
@@ -103,7 +102,7 @@ class MixerBlock(nn.Module):
     def __init__(self, config: Config):
         super().__init__()
 
-        sequence_length = config.model.sequence_length
+        sequence_length = config.model.input_sequence_length
         embedding_dim = config.model.embedding_dim
 
         self.token_mixer = nn.Sequential(
@@ -141,15 +140,21 @@ class Classifier(nn.Module):
         """Initializes Classifier class."""
         super().__init__()
 
+        input_sequence_length = config.model.input_sequence_length
+        output_sequence_length = config.model.output_sequence_length
         embedding_dim = config.model.embedding_dim
-
         num_classes = config.data.num_tokens
+
         self.classifier = nn.Sequential(
             nn.LayerNorm(embedding_dim),
-            AveragePool(dim=-2),
-            nn.Linear(in_features=embedding_dim, out_features=num_classes)
+            SwapAxes(axis0=-2, axis1=-1),
+            nn.Linear(in_features=input_sequence_length, out_features=output_sequence_length),
+            nn.GELU(),
+            SwapAxes(axis0=-2, axis1=-1),
+            nn.Linear(in_features=embedding_dim, out_features=num_classes),
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         x = self.classifier(x)
+        # x = x.view(-1, x.size(-1))  # Reshape to [batch_size * output_sequence_length, num_classes]
         return x

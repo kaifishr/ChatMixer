@@ -2,8 +2,6 @@
 import torch
 from torch.utils.data import Dataset
 
-from src.config.config import Config
-
 
 class CharDataset(Dataset):
     """Character-level dataset.
@@ -13,17 +11,19 @@ class CharDataset(Dataset):
     Attributes:
         data:
         config:
+        input_length: Length of input sequence.
+        output_length: Length of output sequence.
         char_to_index:
         index_to_char:
         num_chars:
     """
 
-    def __init__(self, data: str, config: Config):
+    def __init__(self, data: str, input_length: int = 1, output_length: int = 1):
 
         self.data = data
-        self.config = config
 
-        self.sequence_length = config.model.sequence_length
+        self.input_sequence_length = input_length
+        self.output_sequence_length = output_length
 
         chars = sorted(list(set(data)))
 
@@ -37,7 +37,7 @@ class CharDataset(Dataset):
         print(f"Unique characters: {self.num_tokens}\n")
 
     def __len__(self):
-        return len(self.data) - self.sequence_length
+        return len(self.data) - (self.input_sequence_length + self.output_sequence_length)
 
     def __getitem__(self, idx):
         """Extracts sequence of characters from data.
@@ -46,28 +46,30 @@ class CharDataset(Dataset):
 
         data = "The quick brown Fox jumps"
 
-        idx=4 and block_size=8, the following block
+        idx=4 and input_sequence_length=8, 
+        output_sequence_length=2 the following block
         of characters are extracted from the data
         sequence
 
-        char_block = "quick bro"
+        char_block = "quick brow"
 
         which is being encoded as a list of integers:
 
-        encoded_block = [9, 1, 4, 8, 2, 5, 3, 7, 6]
-                         q  u  i  c  k " " b  r  o
+        encoded_block = [9, 1, 4, 8, 2, 5, 3, 7, 6, 0]
+                         q  u  i  c  k " " b  r  o, w
 
         From this list, the following input and target
         is created:
 
         x = [9, 1, 4, 8, 2, 5, 3, 7]
-        y = [6]
+        y = [6, 0]
 
         Args:
             idx: Index to access string stored in data.
         """
-        char_sequence = self.data[idx : idx + self.sequence_length + 1]
+        sequence_length = self.input_sequence_length + self.output_sequence_length
+        char_sequence = self.data[idx : idx + sequence_length]
         int_sequence = [self.char_to_index[char] for char in char_sequence]
-        x = torch.tensor(data=int_sequence[:-1], dtype=torch.long)
-        y = torch.tensor(data=int_sequence[-1], dtype=torch.long)
+        x = torch.tensor(data=int_sequence[:self.input_sequence_length], dtype=torch.long)
+        y = torch.tensor(data=int_sequence[self.input_sequence_length:], dtype=torch.long)
         return x, y

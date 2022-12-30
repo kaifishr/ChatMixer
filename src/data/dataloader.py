@@ -1,6 +1,5 @@
 import os
 import re
-import tarfile
 import zipfile
 import pathlib
 
@@ -9,10 +8,7 @@ import random
 import tqdm
 import torch
 import torchtext
-import torchvision
-import torchvision.transforms as transforms
 from torch.utils.data import DataLoader
-from torchvision.datasets.utils import download_url
 
 from src.config.config import Config
 from src.data.dataset import CharDataset
@@ -31,6 +27,8 @@ def get_dataloader(config: Config) -> tuple[DataLoader, DataLoader]:
     dataset = config.dataloader.dataset
     num_workers = config.dataloader.num_workers
     batch_size = config.trainer.batch_size
+    input_sequence_length = config.model.input_sequence_length
+    output_sequence_length = config.model.output_sequence_length
 
     if dataset == "shakespeare":
 
@@ -46,8 +44,12 @@ def get_dataloader(config: Config) -> tuple[DataLoader, DataLoader]:
         with open(data_path, mode="r") as file:
             data = file.read()
 
-        train_dataset = CharDataset(data=data, config=config)
-        test_dataset = CharDataset(data="", config=config)
+        train_dataset = CharDataset(
+            data=data, 
+            input_length=input_sequence_length, 
+            output_length=output_sequence_length
+        )
+        test_dataset = train_dataset
 
         config.data.num_classes = train_dataset.num_tokens
         config.data.num_tokens = train_dataset.num_tokens
@@ -56,8 +58,12 @@ def get_dataloader(config: Config) -> tuple[DataLoader, DataLoader]:
 
         data = load_lexicap()
 
-        train_dataset = CharDataset(data=data, config=config)
-        test_dataset = CharDataset(data="", config=config)
+        train_dataset = CharDataset(
+            data=data, 
+            input_length=input_sequence_length, 
+            output_length=output_sequence_length
+        )
+        test_dataset = train_dataset
 
         config.data.num_classes = train_dataset.num_tokens
         config.data.num_tokens = train_dataset.num_tokens

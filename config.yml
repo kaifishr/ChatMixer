@@ -6,17 +6,18 @@ random_seed: 42
 ##############
 dataloader:
   # shakespeare, lexicap
-  dataset: "lexicap"
-  num_workers: 2
+  dataset: "shakespeare"
+  num_workers: 0
 
 #########
 # Model #
 #########
 model:
-  sequence_length: 64
-  embedding_dim: 1024
-  expansion_factor: 4
-  num_blocks: 16
+  input_sequence_length: 64
+  output_sequence_length: 8
+  embedding_dim: 256
+  expansion_factor: 1
+  num_blocks: 4
 
 ###########
 # Trainer #

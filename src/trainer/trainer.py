@@ -106,6 +106,9 @@ class Trainer:
                 # Feedforward.
                 outputs = model(inputs)
 
+                outputs = outputs.view(-1, outputs.size(-1))
+                labels = labels.view(-1)
+
                 # Compute loss.
                 loss = criterion(outputs, labels)
 
