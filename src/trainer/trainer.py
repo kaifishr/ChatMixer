@@ -1,3 +1,4 @@
+import pathlib
 import datetime
 import os
 import time
@@ -51,6 +52,11 @@ class Trainer:
 
         self.writer = SummaryWriter(log_dir=log_dir)
 
+        # Save config file
+        file_path = pathlib.Path(self.writer.log_dir) / "config.txt"
+        with open(file_path, "w") as file:
+            file.write(self.config.__str__())
+
         train_loader, test_loader = dataloader
 
         # Add graph of model to Tensorboard.
@@ -66,9 +72,12 @@ class Trainer:
         self.criterion = torch.nn.CrossEntropyLoss()
 
         max_learning_rate = config.trainer.max_learning_rate
-        self.scheduler = torch.optim.lr_scheduler.OneCycleLR(
-            self.optimizer, max_lr=max_learning_rate, total_steps=self.num_update_steps
-        )
+        # self.scheduler = torch.optim.lr_scheduler.OneCycleLR(
+        #     self.optimizer, 
+        #     max_lr=max_learning_rate,
+        #     total_steps=self.num_update_steps,
+        #     div_factor=1e4
+        # )
 
     def run(self):
         """Main training logic."""
@@ -78,13 +87,13 @@ class Trainer:
         model = self.model
         optimizer = self.optimizer
         criterion = self.criterion
-        scheduler = self.scheduler
+        # scheduler = self.scheduler
         device = config.trainer.device
 
         train_loader, test_loader = self.dataloader
 
         update_step = config.trainer.start_update_step
-        self.scheduler.last_epoch = update_step
+        # self.scheduler.last_epoch = update_step
 
         while update_step < self.num_update_steps:
 
@@ -122,7 +131,7 @@ class Trainer:
 
                 # Gradient descent
                 optimizer.step()
-                scheduler.step()
+                # scheduler.step()
 
                 # keeping track of statistics
                 running_loss += loss.item()
@@ -150,11 +159,11 @@ class Trainer:
                         writer.add_scalar(
                             "time_per_update", time_per_update, global_step=update_step
                         )
-                        writer.add_scalar(
-                            "learning_rate",
-                            scheduler.get_last_lr()[0],
-                            global_step=update_step,
-                        )
+                        # writer.add_scalar(
+                        #     "learning_rate",
+                        #     0.0, # scheduler.get_last_lr()[0],
+                        #     global_step=update_step,
+                        # )
 
                         running_loss = 0.0
                         running_accuracy = 0.0
