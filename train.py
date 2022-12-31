@@ -5,11 +5,7 @@ from src.config.config import init_config
 from src.data.dataloader import get_dataloader
 from src.modules.model import CharacterMixer
 from src.trainer.trainer import Trainer
-from src.utils.tools import (
-    set_random_seed, 
-    load_checkpoint, 
-    count_model_parameters
-)
+from src.utils.tools import set_random_seed, load_checkpoint, count_model_parameters
 
 
 def train_mixer():

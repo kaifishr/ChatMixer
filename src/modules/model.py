@@ -4,7 +4,7 @@ import torch.nn as nn
 
 from src.config import Config
 from src.modules.module import (
-    MixerBlock, 
+    MixerBlock,
     PositionEmbedding,
     TokenEmbedding,
     Classifier,

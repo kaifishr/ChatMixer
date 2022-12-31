@@ -63,7 +63,6 @@ class PositionEmbedding(nn.Module):
 
 
 class MlpBlock(nn.Module):
-
     def __init__(self, dim: int, config: Config) -> None:
         super().__init__()
 
@@ -83,7 +82,6 @@ class MlpBlock(nn.Module):
 
 
 class SwapAxes(nn.Module):
-
     def __init__(self, axis0: int, axis1):
         super().__init__()
         self.axis0 = axis0
@@ -95,7 +93,7 @@ class SwapAxes(nn.Module):
 
 class MixerBlock(nn.Module):
     """MLP Mixer block
-    
+
     Mixes channel and token dimension one after the other.
     """
 
@@ -124,7 +122,6 @@ class MixerBlock(nn.Module):
 
 
 class AveragePool(nn.Module):
-
     def __init__(self, dim: int):
         super().__init__()
         self.dim = dim
@@ -135,7 +132,6 @@ class AveragePool(nn.Module):
 
 
 class Classifier(nn.Module):
-
     def __init__(self, config: Config) -> None:
         """Initializes Classifier class."""
         super().__init__()
@@ -148,7 +144,9 @@ class Classifier(nn.Module):
         self.classifier = nn.Sequential(
             nn.LayerNorm(embedding_dim),
             SwapAxes(axis0=-2, axis1=-1),
-            nn.Linear(in_features=input_sequence_length, out_features=output_sequence_length),
+            nn.Linear(
+                in_features=input_sequence_length, out_features=output_sequence_length
+            ),
             nn.GELU(),
             SwapAxes(axis0=-2, axis1=-1),
             nn.Linear(in_features=embedding_dim, out_features=num_classes),

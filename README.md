@@ -57,9 +57,8 @@ Well, that looks pretty mixed up.
 
 ## TODOs
 
-- Add perplexity metric.
-- Drop characters / entire words of the input sequence.
-- Predict more than one token at a time.
+- Add additional metrics.
+
 
 # References
 

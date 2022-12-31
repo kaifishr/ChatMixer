@@ -65,19 +65,13 @@ class Trainer:
                 model=model, dataloader=train_loader, writer=self.writer, config=config
             )
 
-        learning_rate = config.trainer.initial_learning_rate
+        learning_rate = config.trainer.learning_rate
         weight_decay = config.trainer.weight_decay
-        self.optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
+        self.optimizer = torch.optim.Adam(
+            model.parameters(), lr=learning_rate, weight_decay=weight_decay
+        )
 
         self.criterion = torch.nn.CrossEntropyLoss()
-
-        max_learning_rate = config.trainer.max_learning_rate
-        # self.scheduler = torch.optim.lr_scheduler.OneCycleLR(
-        #     self.optimizer, 
-        #     max_lr=max_learning_rate,
-        #     total_steps=self.num_update_steps,
-        #     div_factor=1e4
-        # )
 
     def run(self):
         """Main training logic."""
@@ -87,13 +81,11 @@ class Trainer:
         model = self.model
         optimizer = self.optimizer
         criterion = self.criterion
-        # scheduler = self.scheduler
         device = config.trainer.device
 
         train_loader, test_loader = self.dataloader
 
-        update_step = config.trainer.start_update_step
-        # self.scheduler.last_epoch = update_step
+        update_step = 0
 
         while update_step < self.num_update_steps:
 
@@ -131,7 +123,6 @@ class Trainer:
 
                 # Gradient descent
                 optimizer.step()
-                # scheduler.step()
 
                 # keeping track of statistics
                 running_loss += loss.item()
@@ -159,11 +150,6 @@ class Trainer:
                         writer.add_scalar(
                             "time_per_update", time_per_update, global_step=update_step
                         )
-                        # writer.add_scalar(
-                        #     "learning_rate",
-                        #     0.0, # scheduler.get_last_lr()[0],
-                        #     global_step=update_step,
-                        # )
 
                         running_loss = 0.0
                         running_accuracy = 0.0
@@ -210,13 +196,20 @@ class Trainer:
                 torch.save(model.state_dict(), model_path)
 
         if config.summary.add_linear_weights.every_n_updates > 0:
-            if (update_step % config.summary.add_linear_weights.every_n_updates == 0):
+            if update_step % config.summary.add_linear_weights.every_n_updates == 0:
                 add_linear_weights(model=model, writer=writer, global_step=update_step)
 
         if config.summary.add_token_embeddings.every_n_updates > 0:
-            if (update_step % config.summary.add_token_embeddings.every_n_updates == 0):
-                add_token_embedding_weights(model=model, writer=writer, global_step=update_step)
+            if update_step % config.summary.add_token_embeddings.every_n_updates == 0:
+                add_token_embedding_weights(
+                    model=model, writer=writer, global_step=update_step
+                )
 
         if config.summary.add_position_embeddings.every_n_updates > 0:
-            if (update_step % config.summary.add_position_embeddings.every_n_updates == 0):
-                add_position_embedding_weights(model=model, writer=writer, global_step=update_step)
+            if (
+                update_step % config.summary.add_position_embeddings.every_n_updates
+                == 0
+            ):
+                add_position_embedding_weights(
+                    model=model, writer=writer, global_step=update_step
+                )

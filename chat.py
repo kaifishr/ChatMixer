@@ -33,12 +33,12 @@ class Chat:
         self.valid_characters = list(self.dataset.char_to_index)
 
         self.device = self.config.trainer.device
-        self.sequence_length = self.config.model.sequence_length
+        self.input_sequence_length = self.config.model.input_sequence_length
 
         # Maximum number of generated tokens.
         self.max_num_tokens = 500
         self.temperature = 0.6
-        self.do_sample = True 
+        self.do_sample = False
         self.top_k = 10
 
     @torch.no_grad()
@@ -63,8 +63,8 @@ class Chat:
             # Make sure that the sequence length is smaller than max sequence length.
             sequence = (
                 x
-                if x.size(-1) <= self.sequence_length
-                else x[:, -self.sequence_length :]
+                if x.size(-1) <= self.input_sequence_length
+                else x[:, -self.input_sequence_length :]
             )
 
             # Feed sequence into model.
@@ -72,7 +72,9 @@ class Chat:
 
             # High temperature: make model more creative (text generation).
             # Low temperature: make model more confident (knowledge retrieval).
-            logits = logits / self.temperature
+            # Take first prediction as it is probably associated with the
+            # highest confidence.
+            logits = logits[:, 0, :] / self.temperature
 
             # Convert logits to probabilities.
             probabilities = F.softmax(input=logits, dim=-1)
@@ -103,7 +105,7 @@ class Chat:
 
     def _add_padding(self, prompt: str, char: str = " ") -> str:
         """Pads input prompt to have correct size."""
-        return prompt.rjust(self.sequence_length, " ")
+        return prompt.rjust(self.input_sequence_length, " ")
 
     def test(self):
         """Tests model with some simple prompts."""
