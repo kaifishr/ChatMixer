@@ -74,7 +74,6 @@ class MlpBlock(nn.Module):
             nn.Linear(in_features=dim, out_features=hidden_dim),
             nn.GELU(),
             nn.Linear(in_features=hidden_dim, out_features=dim),
-            nn.GELU(),
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
@@ -154,5 +153,4 @@ class Classifier(nn.Module):
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         x = self.classifier(x)
-        # x = x.view(-1, x.size(-1))  # Reshape to [batch_size * output_sequence_length, num_classes]
         return x

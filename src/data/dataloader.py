@@ -45,9 +45,9 @@ def get_dataloader(config: Config) -> tuple[DataLoader, DataLoader]:
             data = file.read()
 
         train_dataset = CharDataset(
-            data=data, 
-            input_length=input_sequence_length, 
-            output_length=output_sequence_length
+            data=data,
+            input_length=input_sequence_length,
+            output_length=output_sequence_length,
         )
         test_dataset = train_dataset
 
@@ -59,9 +59,9 @@ def get_dataloader(config: Config) -> tuple[DataLoader, DataLoader]:
         data = load_lexicap()
 
         train_dataset = CharDataset(
-            data=data, 
-            input_length=input_sequence_length, 
-            output_length=output_sequence_length
+            data=data,
+            input_length=input_sequence_length,
+            output_length=output_sequence_length,
         )
         test_dataset = train_dataset
 
