@@ -23,12 +23,7 @@ cd ChatMixer
 python train.py 
 ```
 
-Track important metrics and visualization of embeddings and weight matrices with Tensorboard:
-
-```console
-cd ChatMixer 
-tensorboard --logdir runs/
-```
+By default, the model is trained on the [Lexicap](https://karpathy.ai/lexicap/) dataset.
 
 Start chatting with the mixer. The model generates text based on the prompt that can be entered via the console.
 
@@ -52,10 +47,30 @@ into the first, the beautiful mean and cortainly because there's a lot of the sa
 of course, we could say, it's very simply by the first 
 ```
  
-Well, that looks pretty mixed up.
+Well, even thought that looks pretty mixed up, the mixer model is able to learn some english words from scratch.
 
 
-## TODOs
+# Weight Visualization
+
+Some important metrics and trained parameters of the token-mixing MLP blocks can be visualized with Tensorboard:
+
+```console
+cd ChatMixer 
+tensorboard --logdir runs/
+```
+
+The following visualizations show some of the weights learned during training by the token-mixing MLPs.
+
+<center>
+
+| Layer 1 | Layer 2 | Layer 3  | Layer 4  | Layer 5  | Layer 6  | Layer 7  | Layer 8 |
+|---|---|---|---|---|---|---|---|
+| ![](/docs/images/layer_01.png) | ![](/docs/images/layer_02.png) | ![](/docs/images/layer_03.png) | ![](/docs/images/layer_04.png) | ![](/docs/images/layer_05.png) | ![](/docs/images/layer_06.png) | ![](/docs/images/layer_07.png) | ![](/docs/images/layer_08.png)
+
+</center>
+
+
+# TODOs
 
 - Add additional metrics.
 
