@@ -38,7 +38,7 @@ class Chat:
         # Maximum number of generated tokens.
         self.max_num_tokens = 500
         self.temperature = 0.6
-        self.do_sample = True
+        self.do_sample = True 
         self.top_k = 10
 
     @torch.no_grad()
@@ -109,6 +109,7 @@ class Chat:
 
     def test(self):
         """Tests model with some simple prompts."""
+
         prompts = [
             "Why is there something rather than nothing?",
         ]
