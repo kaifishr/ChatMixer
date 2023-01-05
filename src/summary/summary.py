@@ -2,6 +2,8 @@
 """
 import math
 
+import matplotlib.pyplot as plt
+import numpy
 import torch
 from torch import nn
 from torch.utils.tensorboard import SummaryWriter
@@ -56,7 +58,7 @@ def add_token_embedding_weights(
             writer.add_image(name, embedding_rescaled, global_step, dataformats="HW")
 
 
-def add_linear_weights(
+def add_linear_weights_(
     writer: SummaryWriter, model: nn.Module, global_step: int, n_samples_max: int = 128
 ) -> None:
     """Adds visualization of channel and token embeddings to Tensorboard."""
@@ -70,16 +72,68 @@ def add_linear_weights(
             if not dim**2 == width:
                 continue
 
+            # Extract samples
+            n_samples = min(height, n_samples_max)
+            weight = weight[:n_samples]
+
             # Rescale
             x_min, _ = torch.min(weight, dim=-1, keepdim=True)
             x_max, _ = torch.max(weight, dim=-1, keepdim=True)
-            weight_rescaled = (weight - x_min) / (x_max - x_min + 1e-6)
+            weight = (weight - x_min) / (x_max - x_min + 1e-6)
 
             # Reshape
-            weight_rescaled = weight_rescaled.reshape(-1, 1, dim, dim)
+            weight = weight.reshape(-1, 1, dim, dim)
+
+            writer.add_images(name, weight, global_step, dataformats="NCHW")
+
+
+def add_linear_weights(
+    writer: SummaryWriter,
+    model: nn.Module,
+    global_step: int,
+    n_samples_max: int = 32,
+    do_rescale: bool = False,
+) -> None:
+    """Adds visualization of channel and token embeddings to Tensorboard."""
+    for name, module in model.named_modules():
+        if isinstance(module, nn.Linear):
+            weight = module.weight.detach().cpu().numpy()
+
+            height, width = weight.shape
+            dim = int(math.sqrt(width))
+
+            if not dim**2 == width:
+                continue
 
             # Extract samples
             n_samples = min(height, n_samples_max)
-            weight_rescaled = weight_rescaled[:n_samples]
+            weight = weight[:n_samples]
 
-            writer.add_images(name, weight_rescaled, global_step, dataformats="NCHW")
+            # Rescale
+            if do_rescale:
+                x_min = numpy.min(weight, axis=-1, keepdims=True)
+                x_max = numpy.max(weight, axis=-1, keepdims=True)
+                weight = (weight - x_min) / (x_max - x_min + 1e-6)
+
+            # Reshape
+            weight = weight.reshape(-1, dim, dim)
+
+            # Plot weights
+            ncols = 8
+            nrows = int(math.ceil(n_samples / ncols))
+            figsize = (0.5 * ncols, 0.5 * nrows)
+
+            figure, axes = plt.subplots(
+                nrows=nrows,
+                ncols=ncols,
+                figsize=figsize,
+                layout="constrained",
+            )
+
+            for ax, w in zip(axes.flatten(), weight):
+                ax.imshow(w, cmap="bwr", interpolation="none")  # none, spline16, ...
+
+            for ax in axes.flatten():
+                ax.axis("off")
+
+            writer.add_figure(name, figure, global_step)

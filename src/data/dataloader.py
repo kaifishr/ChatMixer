@@ -68,6 +68,46 @@ def get_dataloader(config: Config) -> tuple[DataLoader, DataLoader]:
         config.data.num_classes = train_dataset.num_tokens
         config.data.num_tokens = train_dataset.num_tokens
 
+    elif dataset == "book":
+
+        # Create folder for data.
+        data_dir = "data/book/"
+        pathlib.Path(data_dir).mkdir(parents=True, exist_ok=True)
+
+        data_path = data_dir + "/book.txt"
+        with open(data_path, mode="r") as file:
+            data = file.read()
+
+        train_dataset = CharDataset(
+            data=data,
+            input_length=input_sequence_length,
+            output_length=output_sequence_length,
+        )
+        test_dataset = train_dataset
+
+        config.data.num_classes = train_dataset.num_tokens
+        config.data.num_tokens = train_dataset.num_tokens
+
+    elif dataset == "books":
+
+        # Create folder for data.
+        data_dir = "data/books/"
+        pathlib.Path(data_dir).mkdir(parents=True, exist_ok=True)
+
+        data_path = data_dir + "/books.txt"
+        with open(data_path, mode="r") as file:
+            data = file.read()
+
+        train_dataset = CharDataset(
+            data=data,
+            input_length=input_sequence_length,
+            output_length=output_sequence_length,
+        )
+        test_dataset = train_dataset
+
+        config.data.num_classes = train_dataset.num_tokens
+        config.data.num_tokens = train_dataset.num_tokens
+
     else:
         raise NotImplementedError(f"Dataloader for {dataset} not implemented.")
 

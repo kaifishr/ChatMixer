@@ -62,6 +62,52 @@ class PositionEmbedding(nn.Module):
         return x
 
 
+class MetaLinear(torch.nn.Module):
+    """Meta linear layer class.
+
+    The meta linear layer computes a weight matrices and biases
+    based on the input with which the linear transformation
+    then is performed.
+
+    """
+
+    def __init__(self, in_features: int, out_features: int, bias: bool = True):
+        """Init"""
+        super().__init__()
+
+        self.in_features = in_features
+        self.out_features = out_features
+
+        self.w_linear = torch.nn.Linear(
+            in_features=in_features, out_features=in_features * out_features, bias=bias
+        )
+        self.b_linear = torch.nn.Linear(
+            in_features=in_features, out_features=out_features, bias=bias
+        )
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        batch_size, sequence_length, embedding_dim = x.size()
+
+        # Compute weight matrix weights.
+        w = self.w_linear(x)
+        w = w.reshape(batch_size * sequence_length, self.out_features, self.in_features)
+        w = torch.nn.functional.layer_norm(w, normalized_shape=(self.in_features,))
+
+        # Compute bias weights.
+        b = self.b_linear(x)
+        b = torch.nn.functional.layer_norm(b, normalized_shape=(self.out_features,))
+        b = b.reshape(batch_size * sequence_length, self.out_features, 1)
+
+        # Reshape input for matrix multiplication.
+        x = x.reshape(batch_size * sequence_length, embedding_dim, 1)
+
+        # Compute vector-matrix multiplication with predicted parameters.
+        x = torch.bmm(w, x) + b
+        x = x.reshape(batch_size, sequence_length, self.out_features)
+
+        return x
+
+
 class MlpBlock(nn.Module):
     def __init__(self, dim: int, config: Config) -> None:
         super().__init__()
@@ -71,9 +117,9 @@ class MlpBlock(nn.Module):
         hidden_dim = expansion_factor * dim
 
         self.mlp_block = nn.Sequential(
-            nn.Linear(in_features=dim, out_features=hidden_dim),
+            MetaLinear(in_features=dim, out_features=hidden_dim),
             nn.GELU(),
-            nn.Linear(in_features=hidden_dim, out_features=dim),
+            MetaLinear(in_features=hidden_dim, out_features=dim),
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
@@ -146,7 +192,6 @@ class Classifier(nn.Module):
             nn.Linear(
                 in_features=input_sequence_length, out_features=output_sequence_length
             ),
-            nn.GELU(),
             SwapAxes(axis0=-2, axis1=-1),
             nn.Linear(in_features=embedding_dim, out_features=num_classes),
         )
