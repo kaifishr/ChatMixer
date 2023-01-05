@@ -1,5 +1,5 @@
 tag: ""
-random_seed: 40
+random_seed: 42
 
 ##############
 # Dataloader #
@@ -13,10 +13,10 @@ dataloader:
 # Model #
 #########
 model:
-  num_blocks: 8
-  input_sequence_length: 128
+  num_blocks: 4
+  input_sequence_length: 64
   output_sequence_length: 1
-  embedding_dim: 64
+  embedding_dim: 16
   expansion_factor: 1
 
 ###########
@@ -27,15 +27,15 @@ trainer:
   device: "gpu"
   num_update_steps: 10000000
   batch_size: 32
-  learning_rate: 5.0e-4
+  learning_rate: 1.0e-3
   weight_decay: 0
   gradient_clipping:
-    is_activated: true 
+    is_activated: false
     max_norm: 1.0
 
 load_model:
   is_activated: false 
-  model_name: "lexicap_2"
+  model_name: "lexicap"
   model_path: -1
 
 ########
@@ -54,13 +54,13 @@ summary:
   save_test_stats:
     every_n_updates: -1
   save_model:
-    every_n_updates: 5000
+    every_n_updates: 2000
   add_position_embeddings:
-    every_n_updates: 5000
+    every_n_updates: 10000
   add_token_embeddings:
-    every_n_updates: 5000
+    every_n_updates: 10000
   add_linear_weights:
-    every_n_updates: 5000
+    every_n_updates: 10000
   add_graph: false
 
 ###############

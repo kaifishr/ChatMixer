@@ -1,6 +1,6 @@
 # **ChatMixer**
 
-An [MLP-Mixer](https://arxiv.org/abs/2105.01601) architecture for character-level natural language processing.
+An [MLP-Mixer](https://arxiv.org/abs/2105.01601) architecture with experimental [meta layers](#meta-layers) for character-level natural language processing.
 
 
 # Installation
@@ -37,7 +37,7 @@ cd ChatMixer
 python chat.py 
 ```
 
-Let's see how the mixer performs:
+Let's see how the mixer performs after a short training on a single GPU.
 
 ```console
 Please enter a prompt.
@@ -55,7 +55,32 @@ of course, we could say, it's very simply by the first
 Well, that looks pretty mixed up.
 
 
-## TODOs
+# Meta Layers
+
+Meta layers are an experimental feature of this repository. Meta layers do not directly transform an input $x$, but first compute a weight matrix $W$ and a bias vector $b$, based on input $x$. In a subsequent step, the computed weight matrix $W$ and bias vector $b$ are then used for the linear transformation of the incoming data.
+
+For a target transformation $y \in \mathbb{R}^{m \times 1}$ and an input $x \in \mathbb{R}^{n \times 1}$, the bias parameters $b \in \mathbb{R}^{m \times 1}$ are computed as follows
+
+$$b = W_b x$$
+
+with $W_b \in \mathbb{R}^{m \times n}$. 
+
+Computing the weight matrix $W \in \mathbb{R}^{m \times n}$ requires two steps. First we compute the weights of the weight matrix
+
+$$W = W_w x$$
+
+with $W_w \in \mathbb{R}^{mn \times n}$. In a second step we reshape the column parameter matrix computed to derive the final weight matrix:
+
+$$W \in \mathbb{R}^{mn} \rightarrow W \in \mathbb{R}^{m \times n}$$
+
+Finally, we compute a linear transformation to the incoming data $x$ as usual:
+
+$$y = Wx+b$$
+
+As can be easily seen, this type of layer comes with high computational and memory costs.
+
+
+# TODOs
 
 - Add additional metrics.
 
