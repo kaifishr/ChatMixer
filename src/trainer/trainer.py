@@ -32,9 +32,7 @@ class Trainer:
         trainer.run()
     """
 
-    def __init__(
-        self, model: torch.nn.Module, dataloader: tuple, config: Config
-    ) -> None:
+    def __init__(self, model: torch.nn.Module, dataloader: tuple, config: Config) -> None:
         """Initializes Trainer."""
         self.model = model
         self.dataloader = dataloader
@@ -61,9 +59,7 @@ class Trainer:
 
         # Add graph of model to Tensorboard.
         if config.summary.add_graph:
-            add_graph(
-                model=model, dataloader=train_loader, writer=self.writer, config=config
-            )
+            add_graph(model=model, dataloader=train_loader, writer=self.writer, config=config)
 
         learning_rate = config.trainer.learning_rate
         weight_decay = config.trainer.weight_decay
@@ -126,25 +122,16 @@ class Trainer:
 
                 # keeping track of statistics
                 running_loss += loss.item()
-                running_accuracy += (
-                    (torch.argmax(outputs, dim=1) == labels).float().sum()
-                )
+                running_accuracy += (torch.argmax(outputs, dim=1) == labels).float().sum()
                 running_counter += labels.size(0)
 
                 if config.summary.save_train_stats.every_n_updates > 0:
-                    if (
-                        update_step % config.summary.save_train_stats.every_n_updates
-                        == 0
-                    ):
+                    if (update_step + 1) % config.summary.save_train_stats.every_n_updates == 0:
                         train_loss = running_loss / running_counter
                         train_accuracy = running_accuracy / running_counter
 
-                        writer.add_scalar(
-                            "train_loss", train_loss, global_step=update_step
-                        )
-                        writer.add_scalar(
-                            "train_accuracy", train_accuracy, global_step=update_step
-                        )
+                        writer.add_scalar("train_loss", train_loss, global_step=update_step)
+                        writer.add_scalar("train_accuracy", train_accuracy, global_step=update_step)
 
                         time_per_update = (time.time() - t0) / running_counter
                         writer.add_scalar(
@@ -157,24 +144,18 @@ class Trainer:
 
                         t0 = time.time()
 
-                        print(
-                            f"{update_step:09d} {train_loss:.5f} {train_accuracy:.4f}"
-                        )
+                        print(f"{update_step:09d} {train_loss:.5f} {train_accuracy:.4f}")
 
                 if config.summary.save_test_stats.every_n_updates > 0:
-                    if update_step % config.summary.save_test_stats.every_n_epochs == 0:
+                    if (update_step + 1) % config.summary.save_test_stats.every_n_epochs == 0:
                         test_loss, test_accuracy = comp_stats_classification(
                             model=model,
                             criterion=criterion,
                             data_loader=test_loader,
                             device=device,
                         )
-                        writer.add_scalar(
-                            "test_loss", test_loss, global_step=update_step
-                        )
-                        writer.add_scalar(
-                            "test_accuracy", test_accuracy, global_step=update_step
-                        )
+                        writer.add_scalar("test_loss", test_loss, global_step=update_step)
+                        writer.add_scalar("test_accuracy", test_accuracy, global_step=update_step)
 
                 self._write_summary(model=model, writer=writer, update_step=update_step)
                 update_step += 1
@@ -201,15 +182,8 @@ class Trainer:
 
         if config.summary.add_token_embeddings.every_n_updates > 0:
             if update_step % config.summary.add_token_embeddings.every_n_updates == 0:
-                add_token_embedding_weights(
-                    model=model, writer=writer, global_step=update_step
-                )
+                add_token_embedding_weights(model=model, writer=writer, global_step=update_step)
 
         if config.summary.add_position_embeddings.every_n_updates > 0:
-            if (
-                update_step % config.summary.add_position_embeddings.every_n_updates
-                == 0
-            ):
-                add_position_embedding_weights(
-                    model=model, writer=writer, global_step=update_step
-                )
+            if update_step % config.summary.add_position_embeddings.every_n_updates == 0:
+                add_position_embedding_weights(model=model, writer=writer, global_step=update_step)

@@ -37,9 +37,7 @@ class CharDataset(Dataset):
         print(f"Unique characters: {self.num_tokens}\n")
 
     def __len__(self):
-        return len(self.data) - (
-            self.input_sequence_length + self.output_sequence_length
-        )
+        return len(self.data) - (self.input_sequence_length + self.output_sequence_length)
 
     def __getitem__(self, idx):
         """Extracts sequence of characters from data.
@@ -72,10 +70,6 @@ class CharDataset(Dataset):
         sequence_length = self.input_sequence_length + self.output_sequence_length
         char_sequence = self.data[idx : idx + sequence_length]
         int_sequence = [self.char_to_index[char] for char in char_sequence]
-        x = torch.tensor(
-            data=int_sequence[: self.input_sequence_length], dtype=torch.long
-        )
-        y = torch.tensor(
-            data=int_sequence[self.input_sequence_length :], dtype=torch.long
-        )
+        x = torch.tensor(data=int_sequence[: self.input_sequence_length], dtype=torch.long)
+        y = torch.tensor(data=int_sequence[self.input_sequence_length :], dtype=torch.long)
         return x, y

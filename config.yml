@@ -14,9 +14,9 @@ dataloader:
 #########
 model:
   num_blocks: 4
-  input_sequence_length: 64
+  input_sequence_length: 128
   output_sequence_length: 1
-  embedding_dim: 16
+  embedding_dim: 64
   expansion_factor: 1
 
 ###########
@@ -26,8 +26,8 @@ trainer:
   # gpu, cpu
   device: "gpu"
   num_update_steps: 10000000
-  batch_size: 32
-  learning_rate: 1.0e-3
+  batch_size: 64
+  learning_rate: 3.0e-4
   weight_decay: 0
   gradient_clipping:
     is_activated: false
@@ -54,7 +54,7 @@ summary:
   save_test_stats:
     every_n_updates: -1
   save_model:
-    every_n_updates: 2000
+    every_n_updates: 10000
   add_position_embeddings:
     every_n_updates: 10000
   add_token_embeddings:

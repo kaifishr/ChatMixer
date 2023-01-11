@@ -42,9 +42,7 @@ def count_model_parameters(model: nn.Module, is_trainable: bool = True) -> None:
         is_trainable: Count only trainable parameters if true.
 
     """
-    n_params = sum(
-        p.numel() for p in model.parameters() if p.requires_grad is is_trainable
-    )
+    n_params = sum(p.numel() for p in model.parameters() if p.requires_grad is is_trainable)
 
     print(f"Number of parameters: {n_params/1e6:.3f} M")
 
