@@ -37,9 +37,7 @@ def get_dataloader(config: Config) -> tuple[DataLoader, DataLoader]:
         pathlib.Path(data_dir).mkdir(parents=True, exist_ok=True)
 
         # Download data if not already done.
-        dataset_url = (
-            "https://ocw.mit.edu/ans7870/6/6.006/s08/lecturenotes/files/t8.shakespeare.txt"
-        )
+        dataset_url = "https://ocw.mit.edu/ans7870/6/6.006/s08/lecturenotes/files/t8.shakespeare.txt"
         torchtext.utils.download_from_url(url=dataset_url, root=data_dir)
 
         data_path = data_dir + "/t8.shakespeare.txt"

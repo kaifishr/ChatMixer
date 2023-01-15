@@ -61,11 +61,7 @@ class Chat:
         for _ in range(self.max_num_tokens):
 
             # Make sure that the sequence length is smaller than max sequence length.
-            sequence = (
-                x
-                if x.size(-1) <= self.input_sequence_length
-                else x[:, -self.input_sequence_length :]
-            )
+            sequence = x if x.size(-1) <= self.input_sequence_length else x[:, -self.input_sequence_length :]
 
             # Feed sequence into model.
             logits = self.model(sequence)

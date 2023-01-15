@@ -140,12 +140,8 @@ class MetaLinear(torch.nn.Module):
         self.in_features = in_features
         self.out_features = out_features
 
-        self.w_linear = torch.nn.Linear(
-            in_features=in_features, out_features=in_features * out_features, bias=bias
-        )
-        self.b_linear = torch.nn.Linear(
-            in_features=in_features, out_features=out_features, bias=bias
-        )
+        self.w_linear = torch.nn.Linear(in_features=in_features, out_features=in_features * out_features, bias=bias)
+        self.b_linear = torch.nn.Linear(in_features=in_features, out_features=out_features, bias=bias)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         batch_size, sequence_length, embedding_dim = x.size()
