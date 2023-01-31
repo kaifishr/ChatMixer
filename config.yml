@@ -13,11 +13,14 @@ dataloader:
 # Model #
 #########
 model:
+  # type [cnn, mlp]
+  type: "cnn"
   num_blocks: 4
   input_sequence_length: 128
-  output_sequence_length: 1
-  embedding_dim: 64
+  output_sequence_length: 4
+  embedding_dim: 16
   expansion_factor: 1
+  kernel_size: 9
 
 ###########
 # Trainer #
@@ -26,16 +29,17 @@ trainer:
   # gpu, cpu
   device: "gpu"
   num_update_steps: 10000000
-  batch_size: 64
+  batch_size: 32
   learning_rate: 3.0e-4
   weight_decay: 0
+  momentum: 0.9
   gradient_clipping:
     is_activated: false
     max_norm: 1.0
 
 load_model:
   is_activated: false 
-  model_name: "lexicap"
+  model_name: "book"
   model_path: -1
 
 ########

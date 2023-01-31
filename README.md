@@ -1,6 +1,6 @@
 # **ChatMixer**
 
-An [MLP-Mixer](https://arxiv.org/abs/2105.01601) architecture with experimental [meta layers](#meta-layers) for character-level natural language processing.
+A PyTorch implementation of MLP-Mixer and ConvMixer architectures with experimental [meta layers](#meta-layers) for character-level natural language processing.
 
 
 # Installation
@@ -102,7 +102,10 @@ The following visualizations show some of the weights learned during training by
 
 # References
 
-[MLP-Mixer: An all-MLP Architecture for Vision](https://arxiv.org/abs/2105.01601)
+[1] [MLP-Mixer: An all-MLP Architecture for Vision](https://arxiv.org/abs/2105.01601)
+
+[2] [Patches Are All You Need?](https://arxiv.org/abs/2201.09792)
+
 
 
 # Citation

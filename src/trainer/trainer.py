@@ -7,12 +7,11 @@ from torch.utils.tensorboard import SummaryWriter
 
 from src.config.config import Config
 from src.utils.stats import comp_stats_classification
-from src.summary.summary import (
-    add_graph,
-    add_token_embedding_weights,
-    add_position_embedding_weights,
-    add_linear_weights,
-)
+from src.summary.summary import add_graph
+from src.summary.summary import add_token_embedding_weights
+from src.summary.summary import add_position_embedding_weights 
+from src.summary.summary import add_linear_weights 
+from src.summary.summary import add_kernel_weights 
 
 
 class Trainer:
@@ -176,6 +175,10 @@ class Trainer:
         if config.summary.add_linear_weights.every_n_updates > 0:
             if update_step % config.summary.add_linear_weights.every_n_updates == 0:
                 add_linear_weights(model=model, writer=writer, global_step=update_step)
+
+        if config.summary.add_linear_weights.every_n_updates > 0:
+            if update_step % config.summary.add_linear_weights.every_n_updates == 0:
+                add_kernel_weights(model=model, writer=writer, global_step=update_step)
 
         if config.summary.add_token_embeddings.every_n_updates > 0:
             if update_step % config.summary.add_token_embeddings.every_n_updates == 0:

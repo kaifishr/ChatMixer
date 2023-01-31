@@ -6,9 +6,12 @@ from src.config import Config
 
 
 class TokenEmbedding(nn.Module):
-    """Token embedding module
+    """Token embedding module.
 
-    Embeds an integer as a vector of defined dimension.
+    Token embedding for MLP-Mixer and convolutional neural networks.
+
+    Embeds the integer representing a character token as a vector of given dimension
+    for MLP-Mixer networks or as a square feature map for convolutional networks.
 
     Attributes:
         embedding_dim:
@@ -19,9 +22,18 @@ class TokenEmbedding(nn.Module):
         super().__init__()
 
         num_tokens = config.data.num_tokens
+        model_type = config.model.type
         embedding_dim = config.model.embedding_dim
 
-        size = (num_tokens, embedding_dim)
+        if model_type == "mlp":
+            size = (num_tokens, embedding_dim)
+        elif model_type == "cnn":
+            size = (num_tokens, embedding_dim, embedding_dim)
+        else:
+            raise NotImplementedError(
+                f"Embedding for model type {model_type} not implemented."
+            )
+
         embedding = torch.normal(mean=0.0, std=0.02, size=size)
         self.embedding = nn.Parameter(data=embedding, requires_grad=True)
 
@@ -51,9 +63,18 @@ class PositionEmbedding(nn.Module):
         super().__init__()
 
         sequence_length = config.model.input_sequence_length
+        model_type = config.model.type
         embedding_dim = config.model.embedding_dim
 
-        size = (sequence_length, embedding_dim)
+        if model_type == "mlp":
+            size = (sequence_length, embedding_dim)
+        elif model_type == "cnn":
+            size = (sequence_length, embedding_dim, embedding_dim)
+        else:
+            raise NotImplementedError(
+                f"Embedding for model type {model_type} not implemented."
+            )
+
         embedding = torch.normal(mean=0.0, std=0.02, size=size)
         self.embedding = nn.Parameter(data=embedding, requires_grad=True)
 
@@ -224,13 +245,60 @@ class MixerBlock(nn.Module):
         return x
 
 
-class AveragePool(nn.Module):
-    def __init__(self, dim: int):
+class DepthwiseConvolution(nn.Module):
+    """Depthwise separable convolution."""
+
+    def __init__(self, config: Config):
         super().__init__()
-        self.dim = dim
+
+        sequence_length = config.model.input_sequence_length
+        embedding_dim = config.model.embedding_dim
+        kernel_size = config.model.kernel_size
+
+        self.depthwise_conv = nn.Sequential(
+            nn.Conv2d(sequence_length, sequence_length, kernel_size, groups=sequence_length, padding="same"),
+            nn.GELU(),
+            nn.LayerNorm([sequence_length, embedding_dim, embedding_dim]),
+        )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        x = torch.mean(x, dim=self.dim)
+        x = x + self.depthwise_conv(x)
+        return x
+
+
+class PointwiseConvolution(nn.Module):
+    """Pointwise convolution."""
+
+    def __init__(self, config: Config):
+        super().__init__()
+
+        sequence_length = config.model.input_sequence_length
+        embedding_dim = config.model.embedding_dim
+
+        self.pointwise_conv = nn.Sequential(
+                nn.Conv2d(sequence_length, sequence_length, kernel_size=1),
+                nn.GELU(),
+                nn.LayerNorm([sequence_length, embedding_dim, embedding_dim]),
+        )
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        x = x + self.pointwise_conv(x)
+        return x
+
+
+class ConvMixerBlock(nn.Module):
+    """ConvMixer block."""
+
+    def __init__(self, config: Config):
+        super().__init__()
+
+        self.conv_mixer_block = nn.Sequential(
+            DepthwiseConvolution(config=config),
+            PointwiseConvolution(config=config),
+        )
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        x = self.conv_mixer_block(x)
         return x
 
 
@@ -250,6 +318,28 @@ class Classifier(nn.Module):
             nn.Linear(in_features=input_sequence_length, out_features=output_sequence_length),
             SwapAxes(axis0=-2, axis1=-1),
             nn.Linear(in_features=embedding_dim, out_features=num_classes),
+        )
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        x = self.classifier(x)
+        return x
+
+
+class ConvClassifier(nn.Module):
+    def __init__(self, config: Config) -> None:
+        """Initializes Classifier class."""
+        super().__init__()
+
+        input_sequence_length = config.model.input_sequence_length
+        output_sequence_length = config.model.output_sequence_length
+        embedding_dim = config.model.embedding_dim
+        kernel_size = config.model.kernel_size
+        num_classes = config.data.num_tokens
+
+        self.classifier = nn.Sequential(
+            nn.Conv2d(input_sequence_length, output_sequence_length, kernel_size, padding="same"),
+            nn.Flatten(start_dim=2, end_dim=-1),
+            nn.Linear(in_features=embedding_dim*embedding_dim, out_features=num_classes),
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:

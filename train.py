@@ -1,9 +1,12 @@
 """Main script to run experiments."""
 from src.config.config import init_config
 from src.data.dataloader import get_dataloader
-from src.modules.model import CharacterMixer
+from src.modules.model import MLPMixer
+from src.modules.model import ConvMixer
 from src.trainer.trainer import Trainer
-from src.utils.tools import set_random_seed, load_checkpoint, count_model_parameters
+from src.utils.tools import set_random_seed
+from src.utils.tools import load_checkpoint
+from src.utils.tools import count_model_parameters
 
 
 def train_mixer():
@@ -18,7 +21,8 @@ def train_mixer():
     dataloader = get_dataloader(config=config)
 
     # Get the model.
-    model = CharacterMixer(config=config)
+    # model = MLPMixer(config=config)
+    model = ConvMixer(config=config)
 
     count_model_parameters(model=model)
 

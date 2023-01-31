@@ -37,8 +37,15 @@ def add_position_embedding_weights(writer: SummaryWriter, model: nn.Module, glob
             embedding = module.embedding.detach().cpu()
             x_min = torch.min(embedding)
             x_max = torch.max(embedding)
-            embedding_rescaled = (embedding - x_min) / (x_max - x_min)
-            writer.add_image(name, embedding_rescaled, global_step, dataformats="HW")
+            embedding = (embedding - x_min) / (x_max - x_min)
+
+            if len(embedding.shape) == 3:
+                dataformats = "NCHW"
+                embedding = embedding.unsqueeze(dim=1)
+            elif len(embedding.shape) == 2:
+                dataformats = "HW"
+
+            writer.add_image(name, embedding, global_step, dataformats=dataformats)
 
 
 def add_token_embedding_weights(writer: SummaryWriter, model: nn.Module, global_step: int) -> None:
@@ -48,8 +55,15 @@ def add_token_embedding_weights(writer: SummaryWriter, model: nn.Module, global_
             embedding = module.embedding.detach().cpu()
             x_min = torch.min(embedding)
             x_max = torch.max(embedding)
-            embedding_rescaled = (embedding - x_min) / (x_max - x_min)
-            writer.add_image(name, embedding_rescaled, global_step, dataformats="HW")
+            embedding = (embedding - x_min) / (x_max - x_min)
+
+            if len(embedding.shape) == 3:
+                dataformats = "NCHW"
+                embedding = embedding.unsqueeze(dim=1)
+            elif len(embedding.shape) == 2:
+                dataformats = "HW"
+
+            writer.add_image(name, embedding, global_step, dataformats=dataformats)
 
 
 def add_linear_weights_(writer: SummaryWriter, model: nn.Module, global_step: int, n_samples_max: int = 128) -> None:
@@ -77,7 +91,6 @@ def add_linear_weights_(writer: SummaryWriter, model: nn.Module, global_step: in
             weight = weight.reshape(-1, 1, dim, dim)
 
             writer.add_images(name, weight, global_step, dataformats="NCHW")
-
 
 def add_linear_weights(
     writer: SummaryWriter,
@@ -122,6 +135,52 @@ def add_linear_weights(
                 layout="constrained",
             )
 
+            for ax, w in zip(axes.flatten(), weight):
+                ax.imshow(w, cmap="bwr", interpolation="none")  # none, spline16, ...
+
+            for ax in axes.flatten():
+                ax.axis("off")
+
+            writer.add_figure(name, figure, global_step)
+
+
+def add_kernel_weights(
+    writer: SummaryWriter,
+    model: nn.Module,
+    global_step: int,
+    num_samples_max: int = 64,
+) -> None:
+    """Adds visualization of channel and token embeddings to Tensorboard."""
+    for name, module in model.named_modules():
+        if isinstance(module, nn.Conv2d):
+            weight = module.weight.detach().cpu().numpy()
+
+            num, channels, height, width = weight.shape
+
+            if (height == 1) and (width == 1):
+                continue
+
+            if (channels != 1):
+                continue
+
+            # Extract samples
+            num_samples = min(num, num_samples_max)
+            weight = weight[:num_samples]
+
+            # Switch axes
+            weight = weight.transpose(0, 2, 3, 1)
+
+            # Plot weights
+            ncols = 8
+            nrows = int(math.ceil(num_samples / ncols))
+            figsize = (0.5 * ncols, 0.5 * nrows)
+
+            figure, axes = plt.subplots(
+                nrows=nrows,
+                ncols=ncols,
+                figsize=figsize,
+                layout="constrained",
+            )
             for ax, w in zip(axes.flatten(), weight):
                 ax.imshow(w, cmap="bwr", interpolation="none")  # none, spline16, ...
 

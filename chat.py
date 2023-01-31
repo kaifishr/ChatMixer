@@ -6,8 +6,10 @@ from torch.utils.data import Dataset
 import torch.nn.functional as F
 
 from src.data.dataloader import get_dataloader
-from src.config.config import Config, init_config
-from src.modules.model import CharacterMixer
+from src.config.config import Config
+from src.config.config import init_config
+from src.modules.model import MLPMixer
+from src.modules.model import ConvMixer
 from src.utils.tools import load_checkpoint
 
 
@@ -156,7 +158,8 @@ if __name__ == "__main__":
     dataset = dataloader.dataset
 
     # Get the model
-    model = CharacterMixer(config=config)
+    # model = MLPMixer(config=config)
+    model = ConvMixer(config=config)
     # model = torch.jit.script(model)
 
     ckpt_dir = config.dirs.weights
