@@ -21,8 +21,13 @@ def train_mixer():
     dataloader = get_dataloader(config=config)
 
     # Get the model.
-    # model = MLPMixer(config=config)
-    model = ConvMixer(config=config)
+    model_type = config.model.type
+    if model_type == "mlp":
+        model = MLPMixer(config=config)
+    elif model_type == "cnn":
+        model = ConvMixer(config=config)
+    else:
+        raise NotImplementedError(f"Model type {model_type} not available.")
 
     count_model_parameters(model=model)
 

@@ -92,6 +92,7 @@ def add_linear_weights_(writer: SummaryWriter, model: nn.Module, global_step: in
 
             writer.add_images(name, weight, global_step, dataformats="NCHW")
 
+
 def add_linear_weights(
     writer: SummaryWriter,
     model: nn.Module,
@@ -160,7 +161,7 @@ def add_kernel_weights(
             if (height == 1) and (width == 1):
                 continue
 
-            if (channels != 1):
+            if channels != 1:
                 continue
 
             # Extract samples

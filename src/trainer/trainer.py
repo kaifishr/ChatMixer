@@ -9,9 +9,9 @@ from src.config.config import Config
 from src.utils.stats import comp_stats_classification
 from src.summary.summary import add_graph
 from src.summary.summary import add_token_embedding_weights
-from src.summary.summary import add_position_embedding_weights 
-from src.summary.summary import add_linear_weights 
-from src.summary.summary import add_kernel_weights 
+from src.summary.summary import add_position_embedding_weights
+from src.summary.summary import add_linear_weights
+from src.summary.summary import add_kernel_weights
 
 
 class Trainer:

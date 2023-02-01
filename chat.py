@@ -5,9 +5,9 @@ import torch
 from torch.utils.data import Dataset
 import torch.nn.functional as F
 
-from src.data.dataloader import get_dataloader
 from src.config.config import Config
 from src.config.config import init_config
+from src.data.dataloader import get_dataloader
 from src.modules.model import MLPMixer
 from src.modules.model import ConvMixer
 from src.utils.tools import load_checkpoint
@@ -41,7 +41,7 @@ class Chat:
         self.max_num_tokens = 500
         self.temperature = 0.5
         self.do_sample = True
-        self.top_k = 10
+        # self.top_k = 10
 
     @torch.no_grad()
     def _generate(self, prompt: str) -> str:
@@ -113,19 +113,20 @@ class Chat:
         ]
 
         for prompt in prompts:
-            print(f"\n{prompt}\n")
+            print(f"\n[User]\n{prompt}\n")
             if self._is_valid_prompt(prompt=prompt):
                 prompt = self._add_padding(prompt=prompt)
                 output = self._generate(prompt=prompt)
-                print(f"\n{output}\n")
+                print(f"\n[ChatMixer]\n{output}\n")
 
     def run(self):
         """Runs chat."""
         is_running = True
 
+        print("\nPlease enter a prompt.\n")
         while is_running:
-            print("\nPlease enter a prompt.\n")
 
+            print("[User]")
             prompt = input()
 
             if prompt == "exit":
@@ -137,7 +138,7 @@ class Chat:
             if is_running and self._is_valid_prompt(prompt=prompt):
                 prompt = self._add_padding(prompt=prompt)
                 output = self._generate(prompt=prompt)
-                print(f"\n{output}\n")
+                print(f"\n[ChatMixer]\n{output}\n")
 
         print("Bye!")
 
@@ -158,14 +159,18 @@ if __name__ == "__main__":
     dataset = dataloader.dataset
 
     # Get the model
-    # model = MLPMixer(config=config)
-    model = ConvMixer(config=config)
-    # model = torch.jit.script(model)
+    model_type = config.model.type
+    if model_type == "mlp":
+        model = MLPMixer(config=config)
+    elif model_type == "cnn":
+        model = ConvMixer(config=config)
+    else:
+        raise NotImplementedError(f"Model type {model_type} not available.")
+    model = torch.jit.script(model)
 
     ckpt_dir = config.dirs.weights
     model_name = config.load_model.model_name
     load_checkpoint(model=model, ckpt_dir=ckpt_dir, model_name=model_name)
-    # config.trainer.device = torch.device("cpu")
     model.to(config.trainer.device)
     model.eval()
 

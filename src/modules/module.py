@@ -30,9 +30,7 @@ class TokenEmbedding(nn.Module):
         elif model_type == "cnn":
             size = (num_tokens, embedding_dim, embedding_dim)
         else:
-            raise NotImplementedError(
-                f"Embedding for model type {model_type} not implemented."
-            )
+            raise NotImplementedError(f"Embedding for model type {model_type} not implemented.")
 
         embedding = torch.normal(mean=0.0, std=0.02, size=size)
         self.embedding = nn.Parameter(data=embedding, requires_grad=True)
@@ -71,9 +69,7 @@ class PositionEmbedding(nn.Module):
         elif model_type == "cnn":
             size = (sequence_length, embedding_dim, embedding_dim)
         else:
-            raise NotImplementedError(
-                f"Embedding for model type {model_type} not implemented."
-            )
+            raise NotImplementedError(f"Embedding for model type {model_type} not implemented.")
 
         embedding = torch.normal(mean=0.0, std=0.02, size=size)
         self.embedding = nn.Parameter(data=embedding, requires_grad=True)
@@ -276,9 +272,9 @@ class PointwiseConvolution(nn.Module):
         embedding_dim = config.model.embedding_dim
 
         self.pointwise_conv = nn.Sequential(
-                nn.Conv2d(sequence_length, sequence_length, kernel_size=1),
-                nn.GELU(),
-                nn.LayerNorm([sequence_length, embedding_dim, embedding_dim]),
+            nn.Conv2d(sequence_length, sequence_length, kernel_size=1),
+            nn.GELU(),
+            nn.LayerNorm([sequence_length, embedding_dim, embedding_dim]),
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
@@ -339,7 +335,7 @@ class ConvClassifier(nn.Module):
         self.classifier = nn.Sequential(
             nn.Conv2d(input_sequence_length, output_sequence_length, kernel_size, padding="same"),
             nn.Flatten(start_dim=2, end_dim=-1),
-            nn.Linear(in_features=embedding_dim*embedding_dim, out_features=num_classes),
+            nn.Linear(in_features=embedding_dim * embedding_dim, out_features=num_classes),
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
