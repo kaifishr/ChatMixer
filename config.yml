@@ -1,4 +1,4 @@
-tag: ""
+tag: "32"
 random_seed: 42
 
 ##############
@@ -17,9 +17,9 @@ model:
   num_blocks: 4
   input_sequence_length: 128
   output_sequence_length: 1
-  embedding_dim: 16
+  embedding_dim: 32
   expansion_factor: 1  # only for MLP-Mixer
-  kernel_size: 9       # only for ConvMixer
+  kernel_size: 5       # only for ConvMixer
 
 ###########
 # Trainer #
@@ -30,14 +30,14 @@ trainer:
   num_update_steps: 10000000
   batch_size: 64
   learning_rate: 5.0e-4
-  weight_decay: 1.0e-5
+  weight_decay: 0
   gradient_clipping:
     is_activated: false
     max_norm: 1.0
 
 load_model:
   is_activated: false 
-  model_name: "lexicap_4"
+  model_name: "lexicap_256"
   model_path: -1
 
 ########

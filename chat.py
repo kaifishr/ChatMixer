@@ -40,7 +40,7 @@ class Chat:
         # Maximum number of generated tokens.
         self.max_num_tokens = 500
         self.temperature = 0.5
-        self.do_sample = True
+        self.do_sample = True 
         # self.top_k = 10
 
     @torch.no_grad()

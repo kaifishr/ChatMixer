@@ -33,11 +33,9 @@ def train_mixer():
 
     # Load pre-trained model.
     if config.load_model.is_activated:
-        load_checkpoint(
-            model=model,
-            ckpt_dir=config.dirs.weights,
-            model_name=config.load_model.model_name,
-        )
+        ckpt_dir = config.dirs.weights
+        model_name = config.load_model.model_name
+        load_checkpoint(model=model, ckpt_dir=ckpt_dir, model_name=model_name)
 
     model.to(config.trainer.device)
 
