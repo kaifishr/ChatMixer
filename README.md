@@ -32,22 +32,18 @@ cd ChatMixer
 python chat.py 
 ```
 
-Let's see how the mixer performs after a short training on a single GPU.
+Let's see how the mixer performs after training on a single NVIDIA RTX 2080 Ti for one hour.
 
 ```console
-Please enter a prompt.
-
+[User]
 Why is there something rather than nothing?
 
-The most in my think it's not they went to do you think about the think it's very with
-experience the for many of discover the bigger or complex. The most perfect. And I have a 
-lot of the most paints of the talking that the self situation of the way. It's the keep 
-leave the had the control interesting. Yeah. StarCh, I mean, it's just when you cand the 
-into the first, the beautiful mean and cortainly because there's a lot of the same to any 
-of course, we could say, it's very simply by the first 
+
+[ChatMixer]
+ It's a lot of how the reality is that people who are the generally really careful to the best stages of people that it is, there's a lot of the same time and the real with this podcast and the best thing to discussion of the world is like the rest of the end of the context the same time and the word that doesn't make sure that the same time. It's something that doesn't more time. I think that the word to read a series of the people that are the last on the infinite that is a decision that the b
 ```
  
-Well, even thought that looks pretty mixed up, the mixer model is able to learn some english words from scratch.
+Well, even thought that looks pretty mixed up, the mixer model is able to learn some english words and something that looks like sentences. Haha.
 
 
 # Meta Layers
