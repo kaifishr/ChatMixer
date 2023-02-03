@@ -10,6 +10,7 @@ from src.config.config import init_config
 from src.data.dataloader import get_dataloader
 from src.modules.model import MLPMixer
 from src.modules.model import ConvMixer
+from src.modules.model import ConvModel
 from src.utils.tools import load_checkpoint
 
 
@@ -160,10 +161,12 @@ if __name__ == "__main__":
 
     # Get the model
     model_type = config.model.type
-    if model_type == "mlp":
+    if model_type == "mlpmixer":
         model = MLPMixer(config=config)
-    elif model_type == "cnn":
+    elif model_type == "convmixer":
         model = ConvMixer(config=config)
+    elif model_type == "cnn":
+        model = ConvModel(config=config)
     else:
         raise NotImplementedError(f"Model type {model_type} not available.")
     model = torch.jit.script(model)

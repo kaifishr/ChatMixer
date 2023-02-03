@@ -40,7 +40,7 @@ Why is there something rather than nothing?
 
 
 [ChatMixer]
- It's a lot of how the reality is that people who are the generally really careful to the best stages of people that it is, there's a lot of the same time and the real with this podcast and the best thing to discussion of the world is like the rest of the end of the context the same time and the word that doesn't make sure that the same time. It's something that doesn't more time. I think that the word to read a series of the people that are the last on the infinite that is a decision that the b
+ I mean, I think it's a dream standard the beautiful security of your own for the real world, and then the presentation of what's the thing that it would be a research in the world that come out there. We all the different than the reality and so on. Now the right context of the problem is in the war and then the philosophical physics has a lot of problems and the community a good for the most money and so on. And then you make a completely engaged on the whole people are gonna be some people wh
 ```
  
 Well, even thought that looks pretty mixed up, the mixer model is able to learn some english words and something that looks like sentences. Haha.

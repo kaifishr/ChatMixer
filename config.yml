@@ -1,10 +1,11 @@
-tag: "32"
+tag: "64"
 random_seed: 42
 
 ##############
 # Dataloader #
 ##############
 dataloader:
+  # dataset: shakespeare, lexicap
   dataset: "lexicap"
   num_workers: 0
 
@@ -12,14 +13,14 @@ dataloader:
 # Model #
 #########
 model:
-  # type [cnn, mlp]
+  # type: convmixer, mlpmixer, cnn
   type: "cnn"
   num_blocks: 4
   input_sequence_length: 128
   output_sequence_length: 1
-  embedding_dim: 32
+  embedding_dim: 64
   expansion_factor: 1  # only for MLP-Mixer
-  kernel_size: 5       # only for ConvMixer
+  kernel_size: 3       # only for ConvMixer / CNN
 
 ###########
 # Trainer #
@@ -29,7 +30,7 @@ trainer:
   device: "gpu"
   num_update_steps: 10000000
   batch_size: 64
-  learning_rate: 5.0e-4
+  learning_rate: 1.0e-4
   weight_decay: 0
   gradient_clipping:
     is_activated: false
@@ -37,7 +38,7 @@ trainer:
 
 load_model:
   is_activated: false 
-  model_name: "lexicap_256"
+  model_name: "lexicap"
   model_path: -1
 
 ########

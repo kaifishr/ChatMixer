@@ -25,9 +25,9 @@ class TokenEmbedding(nn.Module):
         model_type = config.model.type
         embedding_dim = config.model.embedding_dim
 
-        if model_type == "mlp":
+        if model_type == "mlpmixer":
             size = (num_tokens, embedding_dim)
-        elif model_type == "cnn":
+        elif model_type == "convmixer" or model_type == "cnn":
             size = (num_tokens, embedding_dim, embedding_dim)
         else:
             raise NotImplementedError(f"Embedding for model type {model_type} not implemented.")
@@ -64,9 +64,9 @@ class PositionEmbedding(nn.Module):
         model_type = config.model.type
         embedding_dim = config.model.embedding_dim
 
-        if model_type == "mlp":
+        if model_type == "mlpmixer":
             size = (sequence_length, embedding_dim)
-        elif model_type == "cnn":
+        elif model_type == "convmixer" or model_type == "cnn":
             size = (sequence_length, embedding_dim, embedding_dim)
         else:
             raise NotImplementedError(f"Embedding for model type {model_type} not implemented.")
@@ -91,13 +91,7 @@ class MetaLinear2(torch.nn.Module):
 
     """
 
-    def __init__(
-        self,
-        in_features: int,
-        out_features: int,
-        hidden_expansion: float = 0.125,
-        bias: bool = True,
-    ):
+    def __init__(self, in_features: int, out_features: int, hidden_expansion: float = 0.125, bias: bool = True):
         """Initializes meta layer."""
         super().__init__()
 
@@ -107,11 +101,7 @@ class MetaLinear2(torch.nn.Module):
         hidden_features = int(hidden_expansion * in_features)
         self.w_linear = torch.nn.Sequential(
             torch.nn.Linear(in_features=in_features, out_features=hidden_features, bias=bias),
-            torch.nn.Linear(
-                in_features=hidden_features,
-                out_features=in_features * out_features,
-                bias=bias,
-            ),
+            torch.nn.Linear(in_features=hidden_features, out_features=in_features * out_features, bias=bias),
         )
         self.b_linear = torch.nn.Sequential(
             torch.nn.Linear(in_features=in_features, out_features=hidden_features, bias=bias),
@@ -193,7 +183,6 @@ class MlpBlock(nn.Module):
 
         self.mlp_block = nn.Sequential(
             MetaLinear(in_features=dim, out_features=hidden_dim),
-            # nn.GELU(),
             MetaLinear(in_features=hidden_dim, out_features=dim),
         )
 
@@ -282,6 +271,43 @@ class PointwiseConvolution(nn.Module):
         return x
 
 
+class Convolution(nn.Module):
+    """Standard convolution."""
+
+    def __init__(self, config: Config):
+        super().__init__()
+
+        sequence_length = config.model.input_sequence_length
+        embedding_dim = config.model.embedding_dim
+        kernel_size = config.model.kernel_size
+
+        self.conv_block = nn.Sequential(
+            nn.Conv2d(sequence_length, sequence_length, kernel_size, padding="same"),
+            nn.GELU(),
+            nn.LayerNorm([sequence_length, embedding_dim, embedding_dim]),
+        )
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        x = x + self.conv_block(x)
+        return x
+
+
+class ConvBlock(nn.Module):
+    """Convolutional block."""
+
+    def __init__(self, config: Config):
+        super().__init__()
+
+        self.conv_block = nn.Sequential(
+            Convolution(config=config),
+            Convolution(config=config)
+        )
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        x = self.conv_block(x)
+        return x
+
+
 class ConvMixerBlock(nn.Module):
     """ConvMixer block."""
 
@@ -290,7 +316,7 @@ class ConvMixerBlock(nn.Module):
 
         self.conv_mixer_block = nn.Sequential(
             DepthwiseConvolution(config=config),
-            PointwiseConvolution(config=config),
+            PointwiseConvolution(config=config)
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
