@@ -1,4 +1,4 @@
-tag: "64"
+tag: ""
 random_seed: 42
 
 ##############
@@ -18,7 +18,7 @@ model:
   num_blocks: 4
   input_sequence_length: 128
   output_sequence_length: 1
-  embedding_dim: 64
+  embedding_dim: 16
   expansion_factor: 1  # only for MLP-Mixer
   kernel_size: 3       # only for ConvMixer / CNN
 
@@ -30,7 +30,7 @@ trainer:
   device: "gpu"
   num_update_steps: 10000000
   batch_size: 64
-  learning_rate: 1.0e-4
+  learning_rate: 4.0e-4
   weight_decay: 0
   gradient_clipping:
     is_activated: false
