@@ -41,6 +41,27 @@ class CharDataset(Dataset):
 
     def _get_sequence_connected(self, idx: int) -> tuple[list[int], list[int]]:
         """Creates connected sequence.
+
+        For 'data' holding a sequence of characters like
+
+        data = "The quick brown Fox jumps"
+
+        with idx = 4, input_sequence_length = 8, and
+        output_sequence_length = 2, the following sequence
+        of characters are extracted from the data
+        sequence
+
+        char_sequence = "quick brow"
+
+        which is being encoded as a list of integers
+
+        encoded_sequence = [9, 1, 4, 8, 2, 5, 3, 7, 6, 0]
+                            q  u  i  c  k " " b  r  o, w
+
+        From this list, the following input and target is created:
+
+        x = [9, 1, 4, 8, 2, 5, 3, 7]
+        y = [6, 0]
         
         Args:
             idx: Index to access string stored in 'data'
@@ -64,6 +85,13 @@ class CharDataset(Dataset):
         use slicing operations '[-2::-2][::-1]' for the input and 
         '[-1::-2][::-1]' for the output to ensure that the to predicted output 
         sequence always contains the sequence's last character.
+
+        TODO: Not very elegant. Model learns that always every second letter 
+        is missing. Try with random input-target pair.
+        TODO: Add explanation like above.
+        char_sequence = "quick brow"
+        char_sequence_input = "qikbo"
+        char_sequence_output = "uc rw"
         
         Args:
             idx: Index to access string stored in 'data'
@@ -81,28 +109,9 @@ class CharDataset(Dataset):
         return idx_sequence_x, idx_sequence_y
 
     def __getitem__(self, idx: int) -> tuple[torch.Tensor, torch.Tensor]:
-        """Extracts sequence of characters from data.
+        """Gets sequence of characters from data.
 
-        For 'data' holding a sequence of characters like
-
-        data = "The quick brown Fox jumps"
-
-        with idx = 4, input_sequence_length = 8, and
-        output_sequence_length = 2, the following sequence
-        of characters are extracted from the data
-        sequence
-
-        char_sequence = "quick brow"
-
-        which is being encoded as a list of integers
-
-        encoded_sequence = [9, 1, 4, 8, 2, 5, 3, 7, 6, 0]
-                            q  u  i  c  k " " b  r  o, w
-
-        From this list, the following input and target is created:
-
-        x = [9, 1, 4, 8, 2, 5, 3, 7]
-        y = [6, 0]
+        Extracts sequence of characters from data using defined method.
 
         Args:
             idx: Index to access string stored in data.
