@@ -100,6 +100,7 @@ The following visualizations show some of the weights learned during training by
 # TODO:
 
 - Add additional metrics
+- Add NLP training strategy for general mixer networks
 
 
 # References

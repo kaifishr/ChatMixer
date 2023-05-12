@@ -87,7 +87,7 @@ class CharDataset(Dataset):
         sequence always contains the sequence's last character.
 
         TODO: Not very elegant. Model learns that always every second letter 
-        is missing. Try with random input-target pair.
+        is missing. Use random input-target pairs with <blank> tokens.
         TODO: Add explanation like above.
         char_sequence = "quick brow"
         char_sequence_input = "qikbo"

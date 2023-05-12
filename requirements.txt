@@ -2,4 +2,6 @@ numpy
 PyYAML
 tensorboard 
 torch
+torchtext
+matplotlib
 tqdm
