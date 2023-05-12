@@ -1,9 +1,9 @@
-# **ChatMixer**
+# ChatMixer
 
 A PyTorch implementation of MLP-Mixer and ConvMixer architectures with experimental [meta layers](#meta-layers) for character-level natural language processing.
 
 
-# Installation
+## Installation
 
 To run *ChatMixer*, install the latest master directly from GitHub. For a basic install, run:
 
@@ -14,7 +14,7 @@ pip3 install -r requirements.txt
 ```
 
 
-# Getting Started
+## Getting Started
 
 Start training a model by running:
 
@@ -52,7 +52,7 @@ are gonna be some people wh
 Well, even thought that looks pretty mixed up, the mixer model is able to learn some english words and something that looks like sentences. Haha.
 
 
-# Meta Layers
+## Meta Layers
 
 Meta layers are an experimental feature of this repository. Meta layers do not directly transform an input $x$, but first compute a weight matrix $W$ and a bias vector $b$, based on input $x$. In a subsequent step, the computed weight matrix $W$ and bias vector $b$ are then used for the linear transformation of the incoming data.
 
@@ -77,7 +77,7 @@ $$y = Wx+b$$
 As can be easily seen, this type of layer comes with high computational and memory costs.
 
 
-# Weight Visualization
+## Weight Visualization
 
 Some important metrics and trained parameters of the token-mixing MLP blocks can be visualized with Tensorboard:
 
@@ -97,13 +97,13 @@ The following visualizations show some of the weights learned during training by
 </center>
 
 
-# TODO:
+## TODO:
 
 - Add additional metrics
 - Add NLP training strategy for general mixer networks
 
 
-# References
+## References
 
 [1] [MLP-Mixer: An all-MLP Architecture for Vision](https://arxiv.org/abs/2105.01601)
 
@@ -111,7 +111,7 @@ The following visualizations show some of the weights learned during training by
 
 
 
-# Citation
+## Citation
 
 If you find this project useful, please use BibTeX to cite it as:
 
@@ -127,6 +127,6 @@ If you find this project useful, please use BibTeX to cite it as:
 ```
 
 
-# License
+## License
 
 MIT
