@@ -88,7 +88,6 @@ class MetaLinear2(torch.nn.Module):
 
     This layer first reduces the size of the input features before
     computing the weight matrices.
-
     """
 
     def __init__(self, in_features: int, out_features: int, hidden_expansion: float = 0.125, bias: bool = True):
@@ -137,7 +136,6 @@ class MetaLinear(torch.nn.Module):
     The meta linear layer computes a weight matrices and biases
     based on the input with which the linear transformation
     then is performed.
-
     """
 
     def __init__(self, in_features: int, out_features: int, bias: bool = True):
