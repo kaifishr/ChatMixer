@@ -44,6 +44,10 @@ class Chat:
         self.do_sample = True 
         # self.top_k = 10
 
+        # NOTE: Depending on which dataset is used for training, this variable
+        # may vary. For 'MaskedCharDataset' use 'idx_max_confidence = -1'.
+        self.idx_max_confidence = 0
+
     @torch.no_grad()
     def _generate(self, prompt: str) -> str:
         """Generates text from prompt.
@@ -73,7 +77,7 @@ class Chat:
             # Low temperature: make model more confident (knowledge retrieval).
             # Take first prediction as it is probably associated with the
             # highest confidence.
-            logits = logits[:, 0, :] / self.temperature
+            logits = logits[:, self.idx_max_confidence, :] / self.temperature
 
             # Convert logits to probabilities.
             probabilities = F.softmax(input=logits, dim=-1)
