@@ -38,7 +38,7 @@ trainer:
 
 load_model:
   is_activated: false 
-  model_name: "lexicap"
+  model_name: "tinystories"
   model_path: -1
 
 ########

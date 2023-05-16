@@ -41,7 +41,7 @@ class Chat:
         # Maximum number of generated tokens.
         self.max_num_tokens = 500
         self.temperature = 0.5
-        self.do_sample = True 
+        self.do_sample = True
         # self.top_k = 10
 
         # NOTE: Depending on which dataset is used for training, this variable
@@ -66,16 +66,19 @@ class Chat:
 
         # Generate some tokens
         for _ in range(self.max_num_tokens):
-
             # Make sure that the sequence length is smaller than max sequence length.
-            sequence = x if x.size(-1) <= self.input_sequence_length else x[:, -self.input_sequence_length :]
+            sequence = (
+                x
+                if x.size(-1) <= self.input_sequence_length
+                else x[:, -self.input_sequence_length :]
+            )
 
             # Feed sequence into model.
             logits = self.model(sequence)
 
             # High temperature: make model more creative (text generation).
             # Low temperature: make model more confident (knowledge retrieval).
-            # Take first prediction as it is probably associated with the
+            # Take first prediction (0) as it is probably associated with the
             # highest confidence.
             logits = logits[:, self.idx_max_confidence, :] / self.temperature
 
@@ -130,7 +133,6 @@ class Chat:
 
         print("\nPlease enter a prompt.\n")
         while is_running:
-
             print("[User]")
             prompt = input()
 
@@ -149,7 +151,6 @@ class Chat:
 
 
 if __name__ == "__main__":
-
     cwd = os.getcwd()
     print(cwd)
 

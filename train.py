@@ -11,7 +11,6 @@ from src.utils.tools import count_model_parameters
 
 
 def train_mixer():
-
     # Get configuration file.
     config = init_config(file_path="config.yml")
 

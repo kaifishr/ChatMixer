@@ -20,7 +20,6 @@ class CharDataset(Dataset):
     """
 
     def __init__(self, data: str, input_length: int = 1, output_length: int = 1):
-
         self.data = data
         self.input_sequence_length = input_length
         self.output_sequence_length = output_length
@@ -36,8 +35,9 @@ class CharDataset(Dataset):
         print(f"Number of characters: {len(data)/1e6:.3f} M\n")
         print(f"Unique characters: {self.num_tokens}\n")
 
-        self._length = len(self.data) - (self.input_sequence_length 
-                                         + self.output_sequence_length)
+        self._length = len(self.data) - (
+            self.input_sequence_length + self.output_sequence_length
+        )
 
     def __len__(self):
         return self._length
@@ -65,7 +65,7 @@ class CharDataset(Dataset):
 
         x = [9, 1, 4, 8, 2, 5, 3, 7]
         y = [6, 0]
-        
+
         Args:
             idx: Index to access string stored in 'data'
 
@@ -113,7 +113,6 @@ class MaskedCharDataset(Dataset):
     """
 
     def __init__(self, data: str, input_length: int = 1, output_length: int = 1):
-
         assert output_length < input_length
 
         self.data = data
@@ -133,32 +132,32 @@ class MaskedCharDataset(Dataset):
 
         print(f"Number of characters: {len(data)/1e6:.3f} M\n")
         print(f"Unique characters: {self.num_tokens}\n")
-        
-        self._length = len(self.data) - (self.input_sequence_length + 1) 
+
+        self._length = len(self.data) - (self.input_sequence_length + 1)
 
     def __len__(self):
-        return self._length 
+        return self._length
 
     def _get_sequences(self, idx: int) -> tuple[list[int], list[int]]:
         """Creates a masked sequence.
 
-        Creates a sequence of randomly masked inputs. Targets are the masked 
+        Creates a sequence of randomly masked inputs. Targets are the masked
         input tokens as well as the next token in the sequence. The idea is to
-        force the model to interpolate (predict missing / masked tokens in the 
-        sequence) as well as to extrapolate (predict next token at end of the 
+        force the model to interpolate (predict missing / masked tokens in the
+        sequence) as well as to extrapolate (predict next token at end of the
         sequence).
 
-        From a sequence such as 
+        From a sequence such as
 
             char_sequence = "The quick brown fox"
 
         the following input and target sequences are created:
-        
+
         char_sequence_x = "Th* qu*ck b*own*fo"
         char_sequence_y = "eir x"
 
         Where the '*' marks the masked input characters.
-        
+
         Args:
             idx: Index to access string stored in 'data'
 
@@ -168,13 +167,13 @@ class MaskedCharDataset(Dataset):
         # Choose ranomd number of tokens to be dropped.
         idx_drop = numpy.random.choice(
             a=self.input_sequence_length,
-            size=self.output_sequence_length - 1, 
-            replace=False
+            size=self.output_sequence_length - 1,
+            replace=False,
         )
         idx_drop = numpy.sort(idx_drop)
 
         # Extract sequence at random position 'idx'
-        sequence_length = self.input_sequence_length + 1 
+        sequence_length = self.input_sequence_length + 1
         char_sequence = self.data[idx : idx + sequence_length]
 
         # Translate tokens to indices

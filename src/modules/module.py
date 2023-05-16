@@ -30,7 +30,9 @@ class TokenEmbedding(nn.Module):
         elif model_type == "convmixer" or model_type == "cnn":
             size = (num_tokens, embedding_dim, embedding_dim)
         else:
-            raise NotImplementedError(f"Embedding for model type {model_type} not implemented.")
+            raise NotImplementedError(
+                f"Embedding for model type {model_type} not implemented."
+            )
 
         embedding = torch.normal(mean=0.0, std=0.02, size=size)
         self.embedding = nn.Parameter(data=embedding, requires_grad=True)
@@ -69,7 +71,9 @@ class PositionEmbedding(nn.Module):
         elif model_type == "convmixer" or model_type == "cnn":
             size = (sequence_length, embedding_dim, embedding_dim)
         else:
-            raise NotImplementedError(f"Embedding for model type {model_type} not implemented.")
+            raise NotImplementedError(
+                f"Embedding for model type {model_type} not implemented."
+            )
 
         embedding = torch.normal(mean=0.0, std=0.02, size=size)
         self.embedding = nn.Parameter(data=embedding, requires_grad=True)
@@ -90,7 +94,13 @@ class MetaLinear2(torch.nn.Module):
     computing the weight matrices.
     """
 
-    def __init__(self, in_features: int, out_features: int, hidden_expansion: float = 0.125, bias: bool = True):
+    def __init__(
+        self,
+        in_features: int,
+        out_features: int,
+        hidden_expansion: float = 0.125,
+        bias: bool = True,
+    ):
         """Initializes meta layer."""
         super().__init__()
 
@@ -99,12 +109,22 @@ class MetaLinear2(torch.nn.Module):
 
         hidden_features = int(hidden_expansion * in_features)
         self.w_linear = torch.nn.Sequential(
-            torch.nn.Linear(in_features=in_features, out_features=hidden_features, bias=bias),
-            torch.nn.Linear(in_features=hidden_features, out_features=in_features * out_features, bias=bias),
+            torch.nn.Linear(
+                in_features=in_features, out_features=hidden_features, bias=bias
+            ),
+            torch.nn.Linear(
+                in_features=hidden_features,
+                out_features=in_features * out_features,
+                bias=bias,
+            ),
         )
         self.b_linear = torch.nn.Sequential(
-            torch.nn.Linear(in_features=in_features, out_features=hidden_features, bias=bias),
-            torch.nn.Linear(in_features=hidden_features, out_features=out_features, bias=bias),
+            torch.nn.Linear(
+                in_features=in_features, out_features=hidden_features, bias=bias
+            ),
+            torch.nn.Linear(
+                in_features=hidden_features, out_features=out_features, bias=bias
+            ),
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
@@ -145,8 +165,12 @@ class MetaLinear(torch.nn.Module):
         self.in_features = in_features
         self.out_features = out_features
 
-        self.w_linear = torch.nn.Linear(in_features=in_features, out_features=in_features * out_features, bias=bias)
-        self.b_linear = torch.nn.Linear(in_features=in_features, out_features=out_features, bias=bias)
+        self.w_linear = torch.nn.Linear(
+            in_features=in_features, out_features=in_features * out_features, bias=bias
+        )
+        self.b_linear = torch.nn.Linear(
+            in_features=in_features, out_features=out_features, bias=bias
+        )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         batch_size, sequence_length, embedding_dim = x.size()
@@ -239,7 +263,13 @@ class DepthwiseConvolution(nn.Module):
         kernel_size = config.model.kernel_size
 
         self.depthwise_conv = nn.Sequential(
-            nn.Conv2d(sequence_length, sequence_length, kernel_size, groups=sequence_length, padding="same"),
+            nn.Conv2d(
+                sequence_length,
+                sequence_length,
+                kernel_size,
+                groups=sequence_length,
+                padding="same",
+            ),
             nn.GELU(),
             nn.LayerNorm([sequence_length, embedding_dim, embedding_dim]),
         )
@@ -297,8 +327,7 @@ class ConvBlock(nn.Module):
         super().__init__()
 
         self.conv_block = nn.Sequential(
-            Convolution(config=config),
-            Convolution(config=config)
+            Convolution(config=config), Convolution(config=config)
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
@@ -313,8 +342,7 @@ class ConvMixerBlock(nn.Module):
         super().__init__()
 
         self.conv_mixer_block = nn.Sequential(
-            DepthwiseConvolution(config=config),
-            PointwiseConvolution(config=config)
+            DepthwiseConvolution(config=config), PointwiseConvolution(config=config)
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
@@ -335,7 +363,9 @@ class Classifier(nn.Module):
         self.classifier = nn.Sequential(
             nn.LayerNorm(embedding_dim),
             SwapAxes(axis0=-2, axis1=-1),
-            nn.Linear(in_features=input_sequence_length, out_features=output_sequence_length),
+            nn.Linear(
+                in_features=input_sequence_length, out_features=output_sequence_length
+            ),
             SwapAxes(axis0=-2, axis1=-1),
             nn.Linear(in_features=embedding_dim, out_features=num_classes),
         )
@@ -357,9 +387,16 @@ class ConvClassifier(nn.Module):
         num_classes = config.data.num_tokens
 
         self.classifier = nn.Sequential(
-            nn.Conv2d(input_sequence_length, output_sequence_length, kernel_size, padding="same"),
+            nn.Conv2d(
+                input_sequence_length,
+                output_sequence_length,
+                kernel_size,
+                padding="same",
+            ),
             nn.Flatten(start_dim=2, end_dim=-1),
-            nn.Linear(in_features=embedding_dim * embedding_dim, out_features=num_classes),
+            nn.Linear(
+                in_features=embedding_dim * embedding_dim, out_features=num_classes
+            ),
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:

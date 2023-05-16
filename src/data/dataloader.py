@@ -31,7 +31,6 @@ def get_dataloader(config: Config) -> tuple[DataLoader, DataLoader]:
     output_sequence_length = config.model.output_sequence_length
 
     if dataset == "shakespeare":
-
         # Create folder for data.
         data_dir = "data/shakespeare/"
         pathlib.Path(data_dir).mkdir(parents=True, exist_ok=True)
@@ -55,7 +54,6 @@ def get_dataloader(config: Config) -> tuple[DataLoader, DataLoader]:
         config.data.num_tokens = train_dataset.num_tokens
 
     elif dataset == "lexicap":
-
         data = load_lexicap()
 
         train_dataset = CharDataset(
@@ -69,7 +67,6 @@ def get_dataloader(config: Config) -> tuple[DataLoader, DataLoader]:
         config.data.num_tokens = train_dataset.num_tokens
 
     elif dataset == "tinystories":
-
         data = load_tinystories()
 
         train_dataset = CharDataset(
@@ -83,7 +80,6 @@ def get_dataloader(config: Config) -> tuple[DataLoader, DataLoader]:
         config.data.num_tokens = train_dataset.num_tokens
 
     elif dataset == "book":
-
         # Create folder for data.
         data_dir = "data/book/"
         pathlib.Path(data_dir).mkdir(parents=True, exist_ok=True)
@@ -103,7 +99,6 @@ def get_dataloader(config: Config) -> tuple[DataLoader, DataLoader]:
         config.data.num_tokens = train_dataset.num_tokens
 
     elif dataset == "books":
-
         # Create folder for data.
         data_dir = "data/books/"
         pathlib.Path(data_dir).mkdir(parents=True, exist_ok=True)
@@ -221,16 +216,10 @@ def load_tinystories() -> str:
 
     # Download data if not already done.
     torchtext.utils.download_from_url(url=dataset_url, root=data_dir)
-    # ISO-8859
+
     cwd = os.getcwd()
-    with open(cwd + "/" + data_dir + file_name, encoding = "latin-1", mode="r") as file:
-        # data = str(file.read(), encoding="utf-8")
+    with open(cwd + "/" + data_dir + file_name, encoding="latin-1", mode="r") as file:
         data = file.read()
         data = re.sub("\<\|endoftext\|\>", "<", data)
-
-    print(f"{data[:2000] = }")
-    print(data[:2000])
-    print(f"{len(data) = }")
-    exit()
 
     return data

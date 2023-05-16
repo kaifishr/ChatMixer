@@ -15,7 +15,9 @@ from src.modules.module import (
 )
 
 
-def add_graph(model: nn.Module, dataloader: DataLoader, writer: SummaryWriter, config: dict) -> None:
+def add_graph(
+    model: nn.Module, dataloader: DataLoader, writer: SummaryWriter, config: dict
+) -> None:
     """Add graph of model to Tensorboard.
 
     Args:
@@ -30,7 +32,9 @@ def add_graph(model: nn.Module, dataloader: DataLoader, writer: SummaryWriter, c
     writer.add_graph(model=model, input_to_model=x_data.to(device))
 
 
-def add_position_embedding_weights(writer: SummaryWriter, model: nn.Module, global_step: int) -> None:
+def add_position_embedding_weights(
+    writer: SummaryWriter, model: nn.Module, global_step: int
+) -> None:
     """Adds visualization of position embeddings Tensorboard."""
     for name, module in model.named_modules():
         if isinstance(module, PositionEmbedding):
@@ -48,7 +52,9 @@ def add_position_embedding_weights(writer: SummaryWriter, model: nn.Module, glob
             writer.add_image(name, embedding, global_step, dataformats=dataformats)
 
 
-def add_token_embedding_weights(writer: SummaryWriter, model: nn.Module, global_step: int) -> None:
+def add_token_embedding_weights(
+    writer: SummaryWriter, model: nn.Module, global_step: int
+) -> None:
     """Adds visualization of token embeddings to Tensorboard."""
     for name, module in model.named_modules():
         if isinstance(module, TokenEmbedding):
@@ -66,7 +72,9 @@ def add_token_embedding_weights(writer: SummaryWriter, model: nn.Module, global_
             writer.add_image(name, embedding, global_step, dataformats=dataformats)
 
 
-def add_linear_weights_(writer: SummaryWriter, model: nn.Module, global_step: int, n_samples_max: int = 128) -> None:
+def add_linear_weights_(
+    writer: SummaryWriter, model: nn.Module, global_step: int, n_samples_max: int = 128
+) -> None:
     """Adds visualization of channel and token embeddings to Tensorboard."""
     for name, module in model.named_modules():
         if isinstance(module, nn.Linear):
