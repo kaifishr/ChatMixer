@@ -5,8 +5,8 @@ random_seed: 42
 # Dataloader #
 ##############
 dataloader:
-  # dataset: shakespeare, lexicap
-  dataset: "lexicap"
+  # dataset: lexicap, tinystories, shakespeare
+  dataset: "tinystories"
   num_workers: 0
 
 #########

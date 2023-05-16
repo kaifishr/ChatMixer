@@ -68,6 +68,20 @@ def get_dataloader(config: Config) -> tuple[DataLoader, DataLoader]:
         config.data.num_classes = train_dataset.num_tokens
         config.data.num_tokens = train_dataset.num_tokens
 
+    elif dataset == "tinystories":
+
+        data = load_tinystories()
+
+        train_dataset = CharDataset(
+            data=data,
+            input_length=input_sequence_length,
+            output_length=output_sequence_length,
+        )
+        test_dataset = train_dataset
+
+        config.data.num_classes = train_dataset.num_tokens
+        config.data.num_tokens = train_dataset.num_tokens
+
     elif dataset == "book":
 
         # Create folder for data.
@@ -187,3 +201,36 @@ def load_lexicap() -> str:
     transcripts = " ".join(transcripts)
 
     return transcripts
+
+
+def load_tinystories() -> str:
+    """Downloads and cleans TinyStories validation dataset (~19MB file) from Huggingface.
+
+    Script replaces '<|endoftext|>' token with single '<' character to indicate end of story.
+
+    Transcripts can be found here: https://karpathy.ai/lexicap/
+
+    Dataset can be found here: https://huggingface.co/datasets/roneneldan/TinyStories
+    """
+    dataset_url = "https://huggingface.co/datasets/roneneldan/TinyStories/resolve/main/TinyStories-valid.txt"
+    file_name = "TinyStories-valid.txt"
+
+    # Create folder for data.
+    data_dir = "data/tinystories/"
+    pathlib.Path(data_dir).mkdir(parents=True, exist_ok=True)
+
+    # Download data if not already done.
+    torchtext.utils.download_from_url(url=dataset_url, root=data_dir)
+    # ISO-8859
+    cwd = os.getcwd()
+    with open(cwd + "/" + data_dir + file_name, encoding = "latin-1", mode="r") as file:
+        # data = str(file.read(), encoding="utf-8")
+        data = file.read()
+        data = re.sub("\<\|endoftext\|\>", "<", data)
+
+    print(f"{data[:2000] = }")
+    print(data[:2000])
+    print(f"{len(data) = }")
+    exit()
+
+    return data
