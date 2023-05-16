@@ -203,9 +203,10 @@ def load_tinystories() -> str:
 
     Script replaces '<|endoftext|>' token with single '<' character to indicate end of story.
 
-    Transcripts can be found here: https://karpathy.ai/lexicap/
-
     Dataset can be found here: https://huggingface.co/datasets/roneneldan/TinyStories
+
+    Returns:
+        Single string holding TinyStories validation dataset.
     """
     dataset_url = "https://huggingface.co/datasets/roneneldan/TinyStories/resolve/main/TinyStories-valid.txt"
     file_name = "TinyStories-valid.txt"
