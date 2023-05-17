@@ -218,9 +218,16 @@ def load_tinystories() -> str:
     # Download data if not already done.
     torchtext.utils.download_from_url(url=dataset_url, root=data_dir)
 
+    # encoding = "latin-1"
+    # encoding = "utf-8"
+    # encoding = "Windows-1252"
+    encoding = "ISO-8859-1"
+
     cwd = os.getcwd()
-    with open(cwd + "/" + data_dir + file_name, encoding="latin-1", mode="r") as file:
+    file_path = cwd + "/" + data_dir + file_name 
+    with open(file_path, mode="r", encoding=encoding, errors="ignore") as file:
         data = file.read()
         data = re.sub("\<\|endoftext\|\>", "<", data)
 
     return data
+
