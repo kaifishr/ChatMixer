@@ -1,6 +1,6 @@
-import pathlib
 import datetime
 import os
+import pathlib
 
 import torch
 from torch.utils.tensorboard import SummaryWriter

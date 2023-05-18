@@ -220,7 +220,7 @@ def load_tinystories() -> str:
     torchtext.utils.download_from_url(url=dataset_url, root=dataset_dir)
 
     cwd = os.getcwd()
-    file_path = cwd + "/" + dataset_dir + file_name 
+    file_path = cwd + "/" + dataset_dir + file_name
 
     with open(file_path, mode="r", encoding="ISO-8859-1") as file:
         data = file.read()
@@ -231,12 +231,11 @@ def load_tinystories() -> str:
     data = ftfy.fix_text(data)
     chars = sorted(list(set(data)))
 
-    # NOTE: Not happy with this. 
-    # This is a quick and dirty fix to remove characters 
+    # NOTE: Not happy with this.
+    # This is a quick and dirty fix to remove characters
     # that do not strictly adhere to UTF-8 encoding.
-    chars_to_be_removed = chars[chars.index("z") + 1:]
+    chars_to_be_removed = chars[chars.index("z") + 1 :]
     for char in chars_to_be_removed:
         data = re.sub(char, "", data)
 
     return data
-
