@@ -3,6 +3,7 @@ import re
 import zipfile
 import pathlib
 
+import ftfy
 import numpy
 import random
 import tqdm
@@ -227,17 +228,12 @@ def load_tinystories() -> str:
     # Replace end of story token with single character.
     data = re.sub("\<\|endoftext\|\>", "<", data)
 
-    # Replace characters that do not strictly adhere to UTF-8 encoding.
-    # NOTE: This is a quick and dirty fix.
-    data = re.sub("Â´", "'", data)
-    data = re.sub("Â", "", data)
-    data = re.sub("Ã©", "e", data)
-    data = re.sub("Ã±", "n", data)
-    data = re.sub("Ã", "", data)
-    data = re.sub("ð", "", data)
-    data = re.sub("â", "'", data)
-    data = re.sub("¦", "", data)
+    data = ftfy.fix_text(data)
     chars = sorted(list(set(data)))
+
+    # NOTE: Not happy with this. 
+    # This is a quick and dirty fix to remove characters 
+    # that do not strictly adhere to UTF-8 encoding.
     chars_to_be_removed = chars[chars.index("z") + 1:]
     for char in chars_to_be_removed:
         data = re.sub(char, "", data)

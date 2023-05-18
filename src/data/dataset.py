@@ -24,11 +24,8 @@ class CharDataset(Dataset):
         self.input_sequence_length = input_length
         self.output_sequence_length = output_length
 
-        chars = sorted(list(set(self.data)))
-        print(f"{chars = }")
-        print(f"{len(chars) = }")
-
         # Create lookup-tables with character-index-pairs in both directions.
+        chars = sorted(list(set(self.data)))
         self.char_to_index = {char: i for i, char in enumerate(chars)}
         self.index_to_char = {i: char for i, char in enumerate(chars)}
 
@@ -124,9 +121,8 @@ class MaskedCharDataset(Dataset):
         self.mask_char = "⁂"
         self.data += self.mask_char
 
-        chars = sorted(list(set(self.data)))
-
         # Create lookup-tables with character-index-pairs in both directions.
+        chars = sorted(list(set(self.data)))
         self.char_to_index = {char: i for i, char in enumerate(chars)}
         self.index_to_char = {i: char for i, char in enumerate(chars)}
 

@@ -118,6 +118,10 @@ class Chat:
 
         prompts = [
             "Why is there something rather than nothing?",
+            "What is the meaning of life?",
+            "Alice was so tired when she got home so she went",
+            "Jack wanted to read a book, so he went to",
+            "If I throw a ball up in the air, eventually, it will",
         ]
 
         for prompt in prompts:
