@@ -99,8 +99,9 @@ The following visualizations show some of the weights learned during training by
 
 ## TODO:
 
-- Add additional metrics
-- Add NLP training strategy for general mixer networks
+- Add better encoding scheme to support longer sequences.
+- Allow chat to receive command line arguments.
+- Add additional metrics.
 
 
 ## References

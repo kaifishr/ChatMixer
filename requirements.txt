@@ -5,4 +5,3 @@ torch
 torchtext
 matplotlib
 tqdm
-ftfy
