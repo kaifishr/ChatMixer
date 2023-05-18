@@ -218,16 +218,33 @@ def load_tinystories() -> str:
     # Download data if not already done.
     torchtext.utils.download_from_url(url=dataset_url, root=data_dir)
 
-    # encoding = "latin-1"
-    # encoding = "utf-8"
-    # encoding = "Windows-1252"
-    encoding = "ISO-8859-1"
+    # from datasets import load_dataset
+    # data = load_dataset('roneneldan/TinyStories', data_files=data_files, encoding='iso_8859_1')
+    # print(type(data))
+    # exit()
 
     cwd = os.getcwd()
     file_path = cwd + "/" + data_dir + file_name 
-    with open(file_path, mode="r", encoding=encoding, errors="ignore") as file:
+
+    with open(file_path, mode="r", encoding="ISO-8859-1") as file:
         data = file.read()
-        data = re.sub("\<\|endoftext\|\>", "<", data)
+
+    data = re.sub("\<\|endoftext\|\>", "<", data)
+
+    # Replace characters that do not strictly adhere to UTF-8 encoding.
+    # NOTE: This is a quick and dirty fix.
+    data = re.sub("Â´", "'", data)
+    data = re.sub("Â", "", data)
+    data = re.sub("Ã©", "e", data)
+    data = re.sub("Ã±", "n", data)
+    data = re.sub("Ã", "", data)
+    data = re.sub("ð", "", data)
+    data = re.sub("â", "'", data)
+    data = re.sub("¦", "", data)
+    chars = sorted(list(set(data)))
+    chars_to_be_removed = chars[chars.index("z") + 1:]
+    for char in chars_to_be_removed:
+        data = re.sub(char, "", data)
 
     return data
 
