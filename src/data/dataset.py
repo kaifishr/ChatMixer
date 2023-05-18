@@ -25,6 +25,8 @@ class CharDataset(Dataset):
         self.output_sequence_length = output_length
 
         chars = sorted(list(set(self.data)))
+        print(f"{chars = }")
+        print(f"{len(chars) = }")
 
         # Create lookup-tables with character-index-pairs in both directions.
         self.char_to_index = {char: i for i, char in enumerate(chars)}

@@ -201,7 +201,7 @@ def load_lexicap() -> str:
 def load_tinystories() -> str:
     """Downloads and cleans TinyStories validation dataset (~19MB file) from Huggingface.
 
-    Script replaces '<|endoftext|>' token with single '<' character to indicate end of story.
+    Function replaces '<|endoftext|>' token with single '<' character to indicate end of story.
 
     Dataset can be found here: https://huggingface.co/datasets/roneneldan/TinyStories
 
@@ -209,26 +209,22 @@ def load_tinystories() -> str:
         Single string holding TinyStories validation dataset.
     """
     dataset_url = "https://huggingface.co/datasets/roneneldan/TinyStories/resolve/main/TinyStories-valid.txt"
-    file_name = "TinyStories-valid.txt"
+    file_name = dataset_url.split("/")[-1]
 
     # Create folder for data.
-    data_dir = "data/tinystories/"
-    pathlib.Path(data_dir).mkdir(parents=True, exist_ok=True)
+    dataset_dir = "data/tinystories/"
+    pathlib.Path(dataset_dir).mkdir(parents=True, exist_ok=True)
 
     # Download data if not already done.
-    torchtext.utils.download_from_url(url=dataset_url, root=data_dir)
-
-    # from datasets import load_dataset
-    # data = load_dataset('roneneldan/TinyStories', data_files=data_files, encoding='iso_8859_1')
-    # print(type(data))
-    # exit()
+    torchtext.utils.download_from_url(url=dataset_url, root=dataset_dir)
 
     cwd = os.getcwd()
-    file_path = cwd + "/" + data_dir + file_name 
+    file_path = cwd + "/" + dataset_dir + file_name 
 
     with open(file_path, mode="r", encoding="ISO-8859-1") as file:
         data = file.read()
 
+    # Replace end of story token with single character.
     data = re.sub("\<\|endoftext\|\>", "<", data)
 
     # Replace characters that do not strictly adhere to UTF-8 encoding.
