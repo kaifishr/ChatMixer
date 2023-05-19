@@ -1,5 +1,6 @@
 """Methods to chat with pre-trained language network."""
-import os
+import argparse
+from argparse import Namespace
 
 import torch
 from torch.utils.data import Dataset
@@ -27,7 +28,7 @@ class Chat:
 
     """
 
-    def __init__(self, model: torch.nn.Module, dataset: Dataset, config: Config):
+    def __init__(self, model: torch.nn.Module, dataset: Dataset, config: Config, args: Namespace):
         """Initializes chat class."""
         self.model = model
         self.dataset = dataset
@@ -39,9 +40,9 @@ class Chat:
         self.input_sequence_length = self.config.model.input_sequence_length
 
         # Maximum number of generated tokens.
-        self.max_num_tokens = 500
-        self.temperature = 0.5
-        self.do_sample = True
+        self.num_tokens = args.num_tokens
+        self.temperature = args.temperature
+        self.do_sample = args.do_sample
         # self.top_k = 10
 
         # NOTE: Depending on which dataset is used for training, this variable
@@ -65,7 +66,7 @@ class Chat:
         x = torch.tensor(data=data, dtype=torch.long)[None, ...].to(self.device)
 
         # Generate some tokens
-        for _ in range(self.max_num_tokens):
+        for _ in range(self.num_tokens):
             # Make sure that the sequence length is smaller than max sequence length.
             sequence = (
                 x
@@ -136,12 +137,28 @@ class Chat:
         is_running = True
 
         print("\nPlease enter a prompt.\n")
+
         while is_running:
             print("[User]")
             prompt = input()
 
-            if prompt == "exit":
-                is_running = False
+            if prompt.startswith("!"):
+                command = prompt[1:]
+                if command == "exit":
+                    is_running = False
+                elif command.startswith("--"):
+                    argument, value = command[2:].split(" ")
+                    if argument == "temp":
+                        self.temperature = float(value)
+                    elif argument == "num-tokens":
+                        self.num_tokens = int(value)
+                    elif argument == "do-sample":
+                        self.do_sample = bool(value)
+                    else:
+                        print(f"Argument '{argument}' not recognized.")
+                else:
+                    print(f"Command '{command}' not recognized.")
+                continue
             elif prompt == "":
                 continue
 
@@ -154,9 +171,41 @@ class Chat:
         print("Bye!")
 
 
+def argument_parser() -> argparse.ArgumentParser:
+
+    parser = argparse.ArgumentParser(
+        prog="ChatMixer",
+        description="A simple program to interact with a language model.",
+    )
+
+    parser.add_argument(
+        "--num-tokens",
+        dest="num_tokens",
+        help="Number of tokens to be generated.",
+        default=100,
+        type=int,
+    )
+
+    parser.add_argument(
+        "--temp",
+        dest="temperature",
+        help="Creativity parameter.",
+        default=0.6,
+        type=float,
+    )
+    parser.add_argument(
+        "--do-sample",
+        action="store_true",
+        dest="do_sample",
+        help="Sample from a multinomial distribution.",
+    )
+
+    return parser.parse_args()
+
+
 if __name__ == "__main__":
-    cwd = os.getcwd()
-    print(cwd)
+
+    args = argument_parser()
 
     # Get configuration file
     config_path = "config.yml"
@@ -186,6 +235,6 @@ if __name__ == "__main__":
     model.to(config.trainer.device)
     model.eval()
 
-    chat = Chat(model=model, dataset=dataset, config=config)
-    chat.test()
+    chat = Chat(model=model, dataset=dataset, config=config, args=args)
+    # chat.test()
     chat.run()
