@@ -28,7 +28,9 @@ class Chat:
 
     """
 
-    def __init__(self, model: torch.nn.Module, dataset: Dataset, config: Config, args: Namespace):
+    def __init__(
+        self, model: torch.nn.Module, dataset: Dataset, config: Config, args: Namespace
+    ):
         """Initializes chat class."""
         self.model = model
         self.dataset = dataset
@@ -112,7 +114,10 @@ class Chat:
 
     def _add_padding(self, prompt: str, char: str = " ") -> str:
         """Pads input prompt to have correct size."""
-        return prompt.rjust(self.input_sequence_length, " ")
+        multpr = self.input_sequence_length // len(prompt) + 1
+        prompt = multpr * (" " + prompt)
+        prompt = prompt[-self.input_sequence_length:]
+        return prompt
 
     def test(self):
         """Tests model with some simple prompts."""
@@ -172,7 +177,6 @@ class Chat:
 
 
 def argument_parser() -> argparse.ArgumentParser:
-
     parser = argparse.ArgumentParser(
         prog="ChatMixer",
         description="A simple program to interact with a language model.",
@@ -204,7 +208,6 @@ def argument_parser() -> argparse.ArgumentParser:
 
 
 if __name__ == "__main__":
-
     args = argument_parser()
 
     # Get configuration file
